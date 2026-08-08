@@ -1,0 +1,51 @@
+/* ---------------------------------------------------------------------------
+   Sistema de cor — fonte única da verdade.
+   Uma família de azul só, ancorada no azul do botão CTA. Todo brilho, borda e
+   realce da interface referencia estes tokens; nada define azul (ou qualquer
+   outra cor de destaque) por conta própria. As versões *-rgb existem para uso
+   em transparências via rgb(var(--token-rgb) / alpha).
+   ------------------------------------------------------------------------ */
+:root {
+  --brand-blue: #1447e6; /* primária — azul da marca (botões, brilhos) */
+  --brand-blue-strong: #0e2fb0; /* azul escuro — profundidade do gradiente */
+  --brand-blue-soft: #6e8cf5; /* secundária — realce claro */
+
+  --brand-blue-rgb: 20 71 230;
+  --brand-blue-strong-rgb: 14 47 176;
+  --brand-blue-soft-rgb: 110 140 245;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #000000;
+  color: #ffffff;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* A hero é preta de ponta a ponta; evita qualquer faixa clara no
+     overscroll do iOS ou na barra de navegação do Android. */
+  overscroll-behavior-y: none;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.16);
+}

@@ -1,0 +1,206 @@
+/* =====================================================================
+   Navbar — Liquid Glass neutro (Apple iOS 26 style)
+
+   Vidro transparente, SEM tint de cor: pega a cor do que estiver atrás
+   (robô, preto), como o liquid glass do iOS. Camadas:
+   1. backdrop-filter  → desfoca e satura o fundo real
+   2. background       → camada translúcida branca muito fina
+   3. ::before         → reflexo especular branco no topo (estático)
+   4. ::after          → ruído/noise sutil para textura de vidro
+   5. box-shadow       → rimlight branco no topo + elevação neutra
+   6. border           → borda-rim fina e luminosa
+   ===================================================================== */
+
+.nav {
+  position: fixed;
+  top: 20px;
+  inset-inline: 0;
+  margin-inline: auto;
+  z-index: 100;
+
+  /* Tamanho */
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 10px 10px 10px 18px;
+  width: fit-content;
+  min-width: 280px;
+  max-width: calc(100vw - 40px);
+
+  /* Base translúcida neutra — bem fina, sem cor. */
+  background: rgba(255, 255, 255, 0.05);
+
+  /* Blur + leve saturação/brilho. Só a propriedade padrão: o Lightning CSS
+     (Turbopack) adiciona o prefixo -webkit- conforme os targets. Escrever os
+     dois à mão faz ele descartar a versão sem prefixo e o blur some. */
+  backdrop-filter: blur(30px) saturate(180%) brightness(1.05);
+
+  border-radius: 999px;
+
+  /* Borda-rim fina e luminosa */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  /* Sombras NEUTRAS (sem halo de cor):
+     - inset top:    rimlight branco (especular do vidro)
+     - inset bottom: sombra sutil (profundidade)
+     - outer:        elevação escura por baixo
+  */
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    inset 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(255, 255, 255, 0.1),
+    0 8px 30px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.22);
+
+  /* fixed já estabelece o contexto para os pseudo-elementos absolutos —
+     não repetir position aqui (relative sobrescreveria o fixed). */
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Reflexo especular branco na metade superior — a "luz batendo no vidro".
+   Neutro, sem cor, estático (o liquid glass do iOS não deriva sozinho). */
+.nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.05) 22%,
+    rgba(255, 255, 255, 0) 46%
+  );
+}
+
+/* ── CAMADA 4: Noise/grain para textura de vidro ── */
+.nav::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* Garante que o conteúdo fica acima dos pseudo-elementos */
+.brand,
+.divider,
+.ctaBtn {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Divisória vertical entre logo e botão ---- */
+.divider {
+  width: 1px;
+  height: 24px;
+  flex-shrink: 0;
+  /* linha que aparece no meio e some nas pontas — evita cantos duros */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* ---- Brand ---- */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logoIcon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+.logoName {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* ---- CTA Button — preenchimento sólido igual ao CTA do hero ---- */
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  /* Mesmo gradiente do botão do hero (tokens da marca) */
+  background: linear-gradient(180deg, var(--brand-blue), var(--brand-blue-strong));
+  border: 1px solid rgb(var(--brand-blue-soft-rgb) / 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 12px rgb(var(--brand-blue-rgb) / 0.35);
+
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 200ms ease,
+    filter 200ms ease;
+}
+
+.ctaBtn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 5px 18px rgb(var(--brand-blue-rgb) / 0.5);
+}
+
+.ctaBtn:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 480px) {
+  .nav {
+    top: 14px;
+    gap: 20px;
+    padding: 8px 8px 8px 15px;
+    min-width: 240px;
+  }
+
+  .logoName {
+    font-size: 14px;
+  }
+
+  .ctaBtn {
+    font-size: 12.5px;
+    padding: 7px 14px;
+  }
+}
+
+/* Sob prefers-reduced-motion, o hover do botão não desloca — só cor/sombra. */
+@media (prefers-reduced-motion: reduce) {
+  .ctaBtn:hover,
+  .ctaBtn:active {
+    transform: none;
+  }
+}
