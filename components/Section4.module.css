@@ -1,0 +1,165 @@
+/* ===========================================================================
+   Section4 — grid de funcionalidades
+
+   Hierarquia funcional, não bento ornamental: 1 card primário (swipe file,
+   tem link "Explorar") ocupa a linha de cima; os outros 3 são suporte, em
+   linha abaixo. A assimetria existe porque um item age diferente dos
+   outros (é navegável), não por decoração.
+   =========================================================================== */
+
+.section {
+  position: relative;
+  width: 100%;
+  background: #030304;
+  padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
+}
+
+.header {
+  max-width: 640px;
+  margin: 0 auto clamp(40px, 6vh, 64px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.headline {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.subheadline {
+  margin: 0;
+  font-size: clamp(14px, 1.1vw, 17px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.headerReveal {
+  opacity: 1; /* estado final por padrão; GSAP anima a partir daqui */
+}
+
+.grid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.card {
+  position: relative;
+  padding: clamp(24px, 3vw, 32px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  opacity: 1;
+  transition:
+    border-color 260ms ease,
+    transform 260ms ease,
+    background 260ms ease;
+}
+
+.card:hover {
+  border-color: rgb(var(--brand-blue-rgb, 20 71 230) / 0.5);
+  transform: translateY(-3px);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  opacity: 0.92;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: clamp(16px, 1.3vw, 19px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+}
+
+.cardBody {
+  margin: 0;
+  font-size: clamp(13.5px, 1vw, 15px);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 46ch;
+}
+
+.cardTag {
+  margin-top: 4px;
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-blue-soft, #6e8cf5);
+}
+
+/* Linha de baixo: 3 cards de suporte lado a lado no desktop */
+.supportRow {
+  display: contents;
+}
+
+@media (min-width: 860px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cardFeatured {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: clamp(20px, 3vw, 40px);
+    padding: clamp(28px, 3vw, 40px) clamp(32px, 4vw, 48px);
+  }
+
+  .cardFeatured .icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .cardFeatured .cardTitle {
+    font-size: clamp(19px, 1.5vw, 22px);
+  }
+
+  .cardFeatured .cardBody {
+    max-width: 52ch;
+  }
+
+  .cardFeatured .cardTag {
+    margin-top: 0;
+    margin-left: auto;
+    align-self: center;
+    flex-shrink: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: border-color 260ms ease, background 260ms ease;
+  }
+  .card:hover {
+    transform: none;
+  }
+}

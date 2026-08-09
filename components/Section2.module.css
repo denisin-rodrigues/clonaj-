@@ -1,0 +1,296 @@
+/* ===========================================================================
+   Section2 — Canvas scrubbing com GSAP ScrollTrigger
+   =========================================================================== */
+
+.section {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Canvas esticado para cobrir a section como object-fit: cover */
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Gradiente escuro — mais forte nas bordas, mas sem "buraco" no meio.
+   Antes a faixa central (onde o texto fica) ia a 0% de opacidade pra não
+   esconder a animação por trás; na prática isso deixava o texto sem
+   nenhum apoio quando o frame do canvas era um site claro. Agora há um
+   piso de escurecimento em toda a faixa central — o text-shadow cuida do
+   resto linha a linha. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.3) 35%,
+    rgba(0, 0, 0, 0.3) 65%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Astronautas decorativos — acompanham o painel 1 ("Como funciona").
+
+   São filhos do PRÓPRIO CARD (.panel, que por isso ganhou position:relative
+   abaixo), não da section inteira. Isso é o que faz eles grudarem na borda
+   real do card em qualquer largura de tela — do mobile ao desktop — sem
+   precisar calcular a posição do painel à parte: left/right/top/bottom
+   negativos aqui são só "um pouco pra fora da borda do card", sempre.
+
+   Dois níveis de movimento que não podem disputar o mesmo transform:
+   1. .astronaut (wrapper) — sobe e desvanece conforme o SCROLL, via JS
+      (inline style em .style.transform, ver Section2.tsx). Por isso o
+      posicionamento nos cantos usa left/right/top/bottom, nunca
+      transform: um transform CSS aqui seria substituído (não somado)
+      pelo inline do JS.
+   2. .astronautImg (a própria <img>) — flutuação contínua por CSS
+      @keyframes, num elemento diferente, sem conflito com o de cima.
+   ------------------------------------------------------------------------ */
+.astronaut {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.astronautBL {
+  left: clamp(-34px, -7vw, -14px);
+  bottom: clamp(-22px, -4vh, -8px);
+  width: clamp(76px, 8vw, 130px);
+}
+
+.astronautTR {
+  right: clamp(-26px, -6vw, -10px);
+  top: clamp(-18px, -3.5vh, -6px);
+  width: clamp(70px, 7.5vw, 120px);
+}
+
+/* Só no desktop: maiores e mais afastados do card (sem encostar no canto
+   da página). O mobile não entra aqui de propósito — continua exatamente
+   com os valores acima, grudado na borda do card. */
+@media (min-width: 1024px) {
+  .astronautBL {
+    left: clamp(-160px, -11vw, -90px);
+    bottom: clamp(-40px, -6vh, -10px);
+    width: clamp(170px, 13vw, 260px);
+  }
+
+  .astronautTR {
+    right: clamp(-150px, -10vw, -80px);
+    top: clamp(-36px, -5vh, -8px);
+    width: clamp(160px, 12vw, 240px);
+  }
+}
+
+.astronautImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter:
+    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 22px rgb(var(--brand-blue-rgb, 20 71 230) / 0.28));
+  animation: astro-float 7s ease-in-out infinite;
+}
+
+/* Delay negativo em vez de positivo: começa a animação já "no meio do
+   caminho" em vez de esperar — os dois flutuam fora de sincronia desde o
+   primeiro frame, sem um instante inicial em que os dois sobem juntos. */
+.astronautTR .astronautImg {
+  animation-duration: 8.5s;
+  animation-delay: -3.4s;
+}
+
+@keyframes astro-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astronautImg {
+    animation: none;
+  }
+}
+
+/* Conteúdo centralizado — visível desde o início da section (que fica
+   pinada assim que entra na tela, via ScrollTrigger start:'top top').
+   inset:0 + grid-center é o que centraliza sem usar transform (o GSAP já
+   controla transform/opacity deste elemento via gsap.set). display:grid
+   (em vez de flex) é proposital: os dois painéis-filho usam
+   grid-area:1/1 pra ocupar a MESMA célula e fazer crossfade um sobre o
+   outro — com flex eles ficariam um do lado do outro. */
+.content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: clamp(24px, 5vh, 48px) clamp(24px, 6vw, 64px);
+  opacity: 1;
+}
+
+/* Painel escuro atrás do bloco de texto — encolhe pro tamanho do conteúdo
+   (diferente do .content, que precisa cobrir a section inteira pra
+   centralizar). Sem isto o texto ficava só com o overlay geral da section
+   por trás, que às vezes coincide com um frame claro do canvas e o
+   contraste cai. Aqui o fundo escuro + blur seguem o texto onde quer que
+   ele esteja.
+
+   Os dois painéis (Como funciona / A diferença) dividem a mesma célula de
+   grid e o componente cross-fada a opacidade entre eles conforme o
+   progresso do scroll dentro da section pinada — daí o grid-area:1/1 e o
+   painel 2 nascendo com opacity:0 (o JS assume o controle a partir daí). */
+.panel {
+  grid-area: 1 / 1;
+  /* Ancora os astronautas (filhos absolute) na borda real deste card —
+     ver bloco .astronaut acima. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 1.8vh, 20px);
+  text-align: center;
+  max-width: min(640px, 88vw);
+
+  padding: clamp(28px, 4vh, 48px) clamp(24px, 5vw, 56px);
+  border-radius: 28px;
+  background: rgba(0, 0, 0, 0.42);
+  /* Só a propriedade padrão — ver Navbar.module.css: escrever as duas
+     (padrão + -webkit-) faz o Lightning CSS do Turbopack descartar a
+     padrão, e o blur some em engines que não reconhecem só o prefixo. */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.panel2 {
+  opacity: 0;
+}
+
+/* Sombra atrás do texto — necessária porque o canvas por trás não é um
+   fundo escuro fixo, são screenshots de sites claros passando por baixo
+   (ver .overlay: a faixa central fica quase transparente de propósito,
+   pra não esconder a animação). Sem isso o texto lia mal em cima de
+   qualquer frame claro. Duas camadas: uma sombra justa e escura pra
+   contorno nítido da letra, outra maior e mais suave pra criar um halo
+   escuro que "empurra" o fundo pra trás. */
+.eyebrow,
+.headline,
+.body {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 4px 16px rgba(0, 0, 0, 0.75),
+    0 10px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* Rótulo */
+.eyebrow {
+  margin: 0;
+  font-size: clamp(11px, 0.85vw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brand-blue, #3b82f6);
+}
+
+/* Título */
+.headline {
+  margin: 0;
+  font-size: clamp(1.75rem, 4.5vw, 3.5rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  max-width: 20ch;
+}
+
+/* Corpo */
+.body {
+  margin: 0;
+  max-width: 50ch;
+  font-size: clamp(14px, 1.1vw, 17px);
+  font-weight: 400;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ---- Chips "Clique 1 / Clique 2" ----
+   Substituem o antigo botão "Ver demonstração": os dois passos do produto
+   (clonar, traduzir) como badges lado a lado, vidro fosco igual ao resto
+   da interface, com um numeral discreto acima da ação. */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.4vw, 28px);
+  margin-top: clamp(4px, 1vh, 12px);
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px clamp(18px, 2.6vw, 28px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.stepLabel {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-blue-soft, #6e8cf5);
+}
+
+.stepAction {
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.stepDivider {
+  width: 28px;
+  height: 1.5px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    90deg,
+    var(--brand-blue, #3b82f6) 0%,
+    var(--brand-blue-soft, #93c5fd) 100%
+  );
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .steps {
+    gap: 10px;
+  }
+  .step {
+    padding: 10px 16px;
+  }
+  .stepDivider {
+    width: 16px;
+  }
+}

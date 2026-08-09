@@ -1,77 +1,111 @@
+/* ===========================================================================
+   Layout MOBILE-FIRST: empilhamento vertical (flow), sem sobreposição.
+   Ordem visual: headline → robô → subheadline → CTA.
+   O desktop (largo + deitado) volta ao layout lado-a-lado no @media do fim.
+   =========================================================================== */
+
 .hero {
   position: relative;
   width: 100%;
-  height: 100svh;
-  min-height: 100vh; /* fallback para browsers sem svh */
+  min-height: 100svh;
+  min-height: 100dvh; /* preferível no mobile (desconta a UI do browser) */
   background: #000000;
-  display: flex;
-  overflow: hidden; /* garante que nada vaza fora da viewport */
   isolation: isolate;
+  overflow: hidden; /* clipa robô/linhas na curva da base — ver radius abaixo */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* centraliza a pilha; margens equilibradas */
+  gap: clamp(12px, 2vh, 22px);
+  /* topo livre para a navbar fixa; respiro embaixo */
+  padding: clamp(88px, 14vh, 116px) clamp(20px, 6vw, 40px) clamp(28px, 5vh, 46px);
+
+  /* ---------------------------------------------------------------------
+     Divisória arredondada (referência: rocket-saas.io usa
+     border-radius: 0 0 60px 60px numa section full-bleed, sem gap — a
+     curva lê por causa do contraste navy/branco). Nosso site é preto sobre
+     preto, então o mesmo raio some sozinho: em vez de contraste de cor,
+     a curva ganha um brilho azul que a contorna (mesma família de rim-light
+     já usada na navbar) e um respiro abaixo antes da Section2 começar.
+     Só a base arredonda — o topo encosta na navbar/viewport, igual à
+     referência (que também só arredonda o canto que não toca a borda).
+     --------------------------------------------------------------------- */
+  border-radius: 0 0 clamp(28px, 4vw, 60px) clamp(28px, 4vw, 60px);
+  margin-bottom: clamp(10px, 1.8vh, 22px);
+  box-shadow: 0 26px 70px -24px rgb(var(--brand-blue-rgb, 20 71 230) / 0.55);
 }
 
-/* O canvas ocupa a hero inteira e o robô fica centralizado em todos os
-   formatos. Quem se adapta ao redor dele é a headline, nunca o contrário. */
-.robot {
-  position: absolute;
-  inset: 0;
-  z-index: 0; /* fica embaixo de todo o conteúdo */
+/* Slot do robô — controla o espaço que o personagem ocupa em cada layout.
+   No mobile ele é a faixa flexível do meio do empilhamento. */
+.robotSlot {
+  position: relative;
+  order: 2;
+  z-index: 0;
+  width: 100%;
+  /* Altura EXPLÍCITA (não flex-grow): garante que o height:100% do .host
+     resolva e o canvas ocupe a faixa toda, sem vão. */
+  flex: 0 0 auto;
+  height: clamp(300px, 46svh, 460px);
+}
 
+/* .robot carrega só o enquadramento (o tamanho vem do .host do componente,
+   que preenche o slot). */
+.robot {
   --robot-align-x: 0.5;
-  --robot-align-y: 0.42;
-  --robot-zoom: 0.72;
+  --robot-align-y: 0.5;
+  --robot-zoom: 0.95;
 }
 
 /* ---------------------------------------------------------------------------
    Fundo Three.js de linhas fluidas (componente LineBackground).
-
-   O canvas do robô é opaco (alpha:false), então um fundo ATRÁS dele ficaria
-   escondido. Por isso este layer fica ACIMA do canvas, com mix-blend-mode:
-   screen — o preto do shader não altera nada (screen com preto = nada), e só
-   as linhas azuis SOMAM luz. O fade central que preserva o robô é feito no
-   próprio shader.
+   Fica ACIMA do canvas do robô com mix-blend-mode: screen — o preto do shader
+   não altera nada, só as linhas azuis somam luz. O fade central (no shader)
+   preserva o robô. Cobre a hero inteira, fora do fluxo.
    ------------------------------------------------------------------------ */
 .bgFx {
   position: absolute;
   inset: 0;
-  z-index: 1; /* acima do canvas (z 0), abaixo do texto */
+  z-index: 1;
   pointer-events: none;
   mix-blend-mode: screen;
 }
 
-.headline {
+/* Funde a base da hero com o preto sólido da Section2 logo abaixo. O shader
+   das linhas é propositalmente mais claro perto das bordas (ver
+   LineBackground), então sem este degradê o corte pro preto da próxima
+   section fica seco e visível — este div escurece só a faixa final, por
+   cima do canvas do robô e do fundo Three.js, sem mexer no shader em si. */
+.heroFade {
   position: absolute;
+  inset: auto 0 0 0;
+  height: clamp(140px, 22vh, 260px);
   z-index: 1;
-  margin: 0;
-
-  /* O piso é baixo de propósito: com white-space nowrap a linha não pode
-     transbordar, e a largura do texto varia com a fonte de sistema de cada
-     plataforma. Abaixo de ~350px o 8vw assume e encolhe junto com a tela. */
-  font-size: clamp(1.55rem, 8vw, 2.75rem);
-  font-weight: 500;
-  line-height: 1.06;
-  letter-spacing: -0.032em;
-  color: #ffffff;
-
-  /* No layout de topo a caixa ocupa a largura disponível, então isto
-     centraliza as duas linhas na tela. No layout lateral a caixa encolhe
-     até a linha mais longa, e o mesmo text-align centraliza a segunda
-     linha sob a primeira. */
-  text-align: center;
-
-  /* Precisa deixar o pointer passar: o listener vive no canvas, que é irmão
-     deste elemento, não ancestral. Sem isto o robô congelaria toda vez que o
-     cursor cruzasse o texto. */
   pointer-events: none;
-
-  /* navbar fixa tem ~80px (20px top + ~60px altura) → headline abaixo dela */
-  top: clamp(96px, 16vh, 140px);
-  left: clamp(22px, 6vw, 36px);
-  right: clamp(22px, 6vw, 36px);
+  background: linear-gradient(to bottom, transparent 0%, #000000 100%);
 }
 
-/* A headline é composta como duas linhas exatas. Deixar o navegador
-   reagrupar as palavras produziria "Um clique pra / clonar. / Outro pra
-   traduzir", que perde o paralelismo entre as duas frases. */
+/* Headline (envolvida por .content) */
+.content {
+  order: 1;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.headline {
+  margin: 0;
+  font-size: clamp(1.5rem, 7.5vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.032em;
+  color: #ffffff;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Duas linhas exatas — sem reagrupar palavras. */
 .headline span {
   display: block;
   white-space: nowrap;
@@ -85,32 +119,22 @@
   background-clip: text;
 }
 
-/* Subheadline: mobile — acima do botão CTA */
 .subheadline {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
+  order: 3;
+  z-index: 2;
   margin: 0;
-
-  font-size: 18px;
+  max-width: 34rem;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 400;
-  line-height: 1.55;
+  line-height: 1.5;
   color: #ffffff;
   text-align: center;
-
-  /* botão tem ~54px de altura + gap + 20vh de offset para cima */
-  bottom: calc(102px + 20vh);
-  left: clamp(22px, 8vw, 48px);
-  right: clamp(22px, 8vw, 48px);
+  pointer-events: none;
 }
 
-/* Wrapper do CTA: mobile — 20vh acima do bottom */
 .ctaWrapper {
-  position: absolute;
-  z-index: 10;
-  bottom: calc(32px + 20vh);
-  left: 50%;
-  transform: translateX(-50%);
+  order: 4;
+  z-index: 2;
 }
 
 .hint {
@@ -118,7 +142,7 @@
   left: 50%;
   bottom: clamp(24px, 4vh, 48px);
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: 2;
 
   margin: 0;
   font-size: clamp(10px, 0.72vw, 12px);
@@ -129,7 +153,7 @@
   white-space: nowrap;
   pointer-events: none;
 
-  /* some no mobile: o botão CTA ocupa esse espaço */
+  /* some no mobile: o empilhamento já usa esse espaço */
   display: none;
 
   animation: hint-in 1200ms 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -147,39 +171,62 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Headline ao lado do robô.
+   DESKTOP: largo E deitado → layout lado a lado (headline esquerda,
+   subheadline direita, robô centralizado ocupando a hero inteira).
 
-   A condição é largura E proporção, não só largura. Com o robô centralizado,
-   a margem livre à esquerda é (metade da tela − metade do robô), e a largura
-   do robô é governada pela ALTURA da viewport, porque o enquadramento é
-   limitado pela altura em telas deitadas. Numa janela alta e estreita o robô
-   fica largo e essa margem desaparece — daí o min-aspect-ratio. Sem ele, o
-   texto entraria por cima do personagem em janelas quase quadradas.
-
-   O tamanho da fonte em vw acompanha essa mesma margem, então o texto encolhe
-   junto em vez de precisar empurrar o robô para o lado.
+   A condição é largura E proporção: com o robô centralizado, a margem livre
+   nas laterais depende da ALTURA da viewport (o enquadramento é limitado pela
+   altura em telas deitadas). Numa janela alta/estreita o robô fica largo e a
+   margem some — por isso o min-aspect-ratio, senão o texto entraria por cima
+   do personagem.
    ------------------------------------------------------------------------ */
 @media (min-width: 1100px) and (min-aspect-ratio: 3 / 2) {
-  .robot {
-    --robot-align-y: 0.5;
+  .hero {
+    display: block;
+    height: 100svh;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
   }
 
-  /* Headline: esquerda, verticalmente centralizada */
-  .headline {
+  /* robô volta a ocupar a hero inteira, atrás de tudo.
+     height:auto é essencial aqui: a regra mobile fixa uma height explícita
+     no .robotSlot, e num elemento absolute com top+bottom+height todos
+     definidos, o CSS ignora o bottom e recalcula a partir da height — ou
+     seja, sem resetar isso o inset:0 perde efeito e o slot fica preso ao
+     tamanho mobile, empurrando o robô para o topo da hero. */
+  .robotSlot {
+    position: absolute;
+    inset: 0;
+    height: auto;
+    order: 0;
+    flex: none;
+    min-height: 0;
+  }
+  .robot {
+    --robot-align-y: 0.5;
+    --robot-zoom: 0.72;
+  }
+
+  /* Headline: esquerda, centralizada na vertical */
+  .content {
+    position: absolute;
     top: 50%;
-    bottom: auto;
-    right: auto;
     left: clamp(40px, 6vw, 104px);
     transform: translateY(-50%);
+    width: auto;
+    display: block;
+  }
+  .headline {
     font-size: clamp(1.75rem, 2.5vw, 3.5rem);
     letter-spacing: -0.035em;
     text-align: left;
   }
 
-  /* Subheadline: direita, verticalmente centralizada */
+  /* Subheadline: direita, centralizada na vertical */
   .subheadline {
+    position: absolute;
     top: 50%;
-    bottom: auto;
     right: clamp(40px, 6vw, 104px);
     left: auto;
     transform: translateY(-50%);
@@ -188,18 +235,14 @@
     font-size: 18px;
   }
 
-  /* Wrapper do CTA: esquerda, abaixo da headline
-     headline center = 50%, altura ~7rem à 3.5rem/line × 1.06 = ~119px
-     bottom da headline ≈ 50% + 60px → botão a partir de 50% + 72px */
+  /* CTA: esquerda, abaixo da headline */
   .ctaWrapper {
-    top: calc(50% + 72px);
-    bottom: auto;
+    position: absolute;
+    top: calc(50% + 84px);
     left: clamp(40px, 6vw, 104px);
-    right: auto;
     transform: none;
   }
 
-  /* hint reaparece no desktop */
   .hint {
     display: block;
   }
@@ -210,3 +253,4 @@
     animation: none;
   }
 }
+
