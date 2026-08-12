@@ -15,7 +15,7 @@ const COMPANY_LINKS = [
 ] as const;
 
 const SOCIAL = [
-  { label: 'Instagram', icon: 'logos:instagram-icon', href: 'https://clonaja.com/#' },
+  { label: 'Instagram', src: '/images/icon-instagram.png', href: 'https://clonaja.com/#' },
   { label: 'YouTube', icon: 'logos:youtube-icon', href: 'https://clonaja.com/#' },
   { label: 'TikTok', icon: 'logos:tiktok-icon', href: 'https://clonaja.com/#' },
 ] as const;
@@ -27,7 +27,16 @@ export default function Footer() {
     <footer className={styles.footer}>
       <div className={styles.top}>
         <div className={styles.brand}>
-          <span className={styles.logoName}>ClonaJá</span>
+          <div className={styles.logoRow}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/logo-icon.png"
+              alt=""
+              aria-hidden="true"
+              className={styles.logoIcon}
+            />
+            <span className={styles.logoName}>ClonaJá</span>
+          </div>
           <p className={styles.tagline}>
             Clone funis validados, traduza pra qualquer mercado e publique no
             seu domínio. Clone. Traduza. Escale.
@@ -69,7 +78,13 @@ export default function Footer() {
               aria-label={s.label}
               className={styles.socialLink}
             >
-              <img src={ICON(s.icon)} alt="" aria-hidden="true" width={18} height={18} />
+              <img
+                src={'src' in s ? s.src : ICON(s.icon)}
+                alt=""
+                aria-hidden="true"
+                width={18}
+                height={18}
+              />
             </a>
           ))}
         </div>

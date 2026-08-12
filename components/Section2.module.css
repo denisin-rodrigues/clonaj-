@@ -1,5 +1,5 @@
 /* ===========================================================================
-   Section2 — Canvas scrubbing com GSAP ScrollTrigger
+   Section2 — pin + crossfade de painéis com GSAP ScrollTrigger
    =========================================================================== */
 
 .section {
@@ -11,35 +11,25 @@
   background: #000;
 }
 
-/* Canvas esticado para cobrir a section como object-fit: cover */
-.canvas {
+/* Vídeo de fundo — o arquivo é um clipe vertical (1080×1920, 9:16). Com
+   object-fit:cover ele estourava demais em telas largas de desktop (pra
+   cobrir uma section bem mais larga que alta, o vídeo precisa ampliar
+   MUITO em cima do eixo estreito, cortando a maior parte do quadro).
+   contain resolve: mostra o vídeo inteiro, no tamanho real dele, sem
+   zoom artificial — o resto da section (fundo #000, ver acima) preenche
+   as laterais. O currentTime é controlado via JS (Section2.tsx); esta
+   regra só cuida do enquadramento. pointer-events:none reforça o "sem
+   interação de clique" já garantido pela ausência de controls/autoplay. */
+.video {
   position: absolute;
   inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  display: block;
-}
-
-/* Gradiente escuro — mais forte nas bordas, mas sem "buraco" no meio.
-   Antes a faixa central (onde o texto fica) ia a 0% de opacidade pra não
-   esconder a animação por trás; na prática isso deixava o texto sem
-   nenhum apoio quando o frame do canvas era um site claro. Agora há um
-   piso de escurecimento em toda a faixa central — o text-shadow cuida do
-   resto linha a linha. */
-.overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.2) 0%,
-    rgba(0, 0, 0, 0.3) 35%,
-    rgba(0, 0, 0, 0.3) 65%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
+  display: block;
 }
 
 /* ---------------------------------------------------------------------------
@@ -182,17 +172,26 @@
     0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
+/* Ajuste só no mobile/tablet — o desktop (>=1024px, ver bloco de
+   astronautas acima) já tem espaço de sobra e fica como estava.
+   transform:scale muda o card inteiro de uma vez (texto, padding,
+   astronautas) sem precisar recalcular cada clamp() em separado.
+   Histórico: 1 → 0.9 (-10%) → 0.72 (-20% em cima) → 0.864 (+20% em cima
+   disso, pedido pra aumentar de novo). */
+@media (max-width: 1023px) {
+  .panel {
+    transform: scale(0.864);
+  }
+}
+
 .panel2 {
   opacity: 0;
 }
 
-/* Sombra atrás do texto — necessária porque o canvas por trás não é um
-   fundo escuro fixo, são screenshots de sites claros passando por baixo
-   (ver .overlay: a faixa central fica quase transparente de propósito,
-   pra não esconder a animação). Sem isso o texto lia mal em cima de
-   qualquer frame claro. Duas camadas: uma sombra justa e escura pra
-   contorno nítido da letra, outra maior e mais suave pra criar um halo
-   escuro que "empurra" o fundo pra trás. */
+/* Sombra atrás do texto — o .panel já tem fundo escuro translúcido
+   próprio, mas a sombra reforça o contorno da letra contra ele. Duas
+   camadas: uma justa e escura pro contorno nítido, outra maior e mais
+   suave pra um halo que "empurra" o fundo pra trás. */
 .eyebrow,
 .headline,
 .body {
@@ -209,7 +208,7 @@
   font-weight: 500;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--brand-blue, #3b82f6);
+  color: #ffffff;
 }
 
 /* Título */

@@ -10,8 +10,12 @@
 .section {
   position: relative;
   width: 100%;
-  background: #030304;
+  background: #ffffff;
   padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
+  /* Só o topo arredondado — a section escura de cima (Section2, ou o preto
+     do body atrás dela) preenche naturalmente o recorte da curva, sem
+     precisar de gap/gradiente extra. */
+  border-radius: clamp(28px, 4vw, 60px) clamp(28px, 4vw, 60px) 0 0;
 }
 
 .header {
@@ -31,18 +35,14 @@
   font-weight: 600;
   line-height: 1.14;
   letter-spacing: -0.03em;
-  color: #ffffff;
+  color: #0a0a12;
 }
 
 .subheadline {
   margin: 0;
   font-size: clamp(14px, 1.1vw, 17px);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.62);
-}
-
-.headerReveal {
-  opacity: 1; /* estado final por padrão; GSAP anima a partir daqui */
+  color: rgba(10, 10, 18, 0.62);
 }
 
 .grid {
@@ -57,11 +57,11 @@
   position: relative;
   padding: clamp(24px, 3vw, 32px);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(10, 10, 30, 0.08);
   background: linear-gradient(
     165deg,
-    rgba(255, 255, 255, 0.045) 0%,
-    rgba(255, 255, 255, 0.015) 100%
+    rgba(10, 20, 50, 0.035) 0%,
+    rgba(10, 20, 50, 0.012) 100%
   );
   display: flex;
   flex-direction: column;
@@ -78,8 +78,8 @@
   transform: translateY(-3px);
   background: linear-gradient(
     165deg,
-    rgba(255, 255, 255, 0.07) 0%,
-    rgba(255, 255, 255, 0.02) 100%
+    rgba(10, 20, 50, 0.06) 0%,
+    rgba(10, 20, 50, 0.02) 100%
   );
 }
 
@@ -89,19 +89,41 @@
   opacity: 0.92;
 }
 
+/* Os 2 ícones que não têm versão 3D própria (Folder/Globe já animam via
+   Three.js) ganham uma "respiração" contínua sutil — pulso de escala +
+   leve giro, delay negativo pra não nascerem sincronizados. Mesma lógica
+   de "toca mesmo sob prefers-reduced-motion" já usada nos ícones 3D
+   vizinhos no mesmo grid — ver comentário em FolderIcon3D.tsx. */
+.iconAnimated {
+  animation: icon-pulse 3.2s ease-in-out infinite;
+  /* Delay negativo por elemento vem inline via JSX (os dois ícones ficam
+     em cards/parents diferentes, então um seletor tipo :nth-of-type não
+     enxerga os dois como irmãos pra alternar o delay entre eles). */
+}
+
+@keyframes icon-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.12) rotate(-4deg);
+  }
+}
+
 .cardTitle {
   margin: 0;
   font-size: clamp(16px, 1.3vw, 19px);
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: #ffffff;
+  color: #0a0a12;
 }
 
 .cardBody {
   margin: 0;
   font-size: clamp(13.5px, 1vw, 15px);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(10, 10, 18, 0.6);
   max-width: 46ch;
 }
 
@@ -112,7 +134,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--brand-blue-soft, #6e8cf5);
+  color: var(--brand-blue, #1447e6);
 }
 
 /* Linha de baixo: 3 cards de suporte lado a lado no desktop */
@@ -123,6 +145,11 @@
 @media (min-width: 860px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
+    /* Cards ficavam grandes/vazios no desktop — zoom encolhe o grid
+       inteiro (padding, fonte, ícones, gap) proporcionalmente em vez de
+       transform:scale, que deixaria espaço em branco sobrando (não afeta
+       o layout, só o visual). */
+    zoom: 0.6;
   }
 
   .cardFeatured {

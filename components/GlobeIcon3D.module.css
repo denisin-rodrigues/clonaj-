@@ -1,0 +1,14 @@
+/* Sem tamanho próprio de propósito — quem dimensiona é a classe .icon do
+   Section4.module.css, passada via className, exatamente como no <img> que
+   este componente substitui (28px). Ver FolderIcon3D.module.css — mesmo
+   padrão, dois arquivos porque cada componente é dono do próprio CSS. */
+.host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

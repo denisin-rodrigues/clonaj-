@@ -7,11 +7,6 @@ import styles from './Section2.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const TOTAL_FRAMES = 96;
-
-const frameSrc = (i: number) =>
-  `/frames/section2/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
-
 /* Ponto do scroll (0–1) em que o painel 1 termina de sumir e o painel 2
    termina de aparecer, e a largura da faixa de transição em torno dele.
    Fora da faixa [SWITCH-FADE/2, SWITCH+FADE/2] cada painel fica 100%
@@ -31,8 +26,6 @@ const RISE_PX = 420;
 
 export default function Section2() {
   const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   const panel1Ref = useRef<HTMLDivElement>(null);
   const panel2Ref = useRef<HTMLDivElement>(null);
@@ -40,35 +33,6 @@ export default function Section2() {
   const astro2Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    const ctx = canvas.getContext('2d')!;
-    const images: HTMLImageElement[] = [];
-
-    /* ── Desenha frame no canvas ─────────────────────────────── */
-    const draw = (index: number) => {
-      const img = images[Math.round(index)];
-      if (!img?.complete || !img.naturalWidth) return;
-
-      // Ajusta canvas ao tamanho real da imagem (evita distorção)
-      if (canvas.width !== img.naturalWidth) {
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
-
-    /* ── Pré-carrega todos os frames ─────────────────────────── */
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.src = frameSrc(i);
-      img.onload = () => {
-        if (i === 1) draw(0); // exibe o primeiro frame assim que carrega
-      };
-      images.push(img);
-    }
-    imagesRef.current = images;
-
     /* ── Troca painel 1 ⇄ painel 2 conforme o progresso do scroll ──────
        Os dois painéis ocupam a mesma célula de grid (ver .panel no CSS)
        e o crossfade é só opacidade — nada de layout mudando de tamanho. */
@@ -103,7 +67,7 @@ export default function Section2() {
     };
     updatePanels(0);
 
-    /* ── GSAP ScrollTrigger — canvas scrubbing + troca de painéis ─────
+    /* ── GSAP ScrollTrigger — pin + troca de painéis via scroll ─────
        Tudo que cria pin/ScrollTrigger mora dentro de um gsap.context()
        escopado a esta section. Isso importa porque o React Strict Mode
        roda o efeito, desmonta e remonta de novo em dev — e um cleanup
@@ -115,26 +79,19 @@ export default function Section2() {
        inline — de forma atômica, e nunca mexe em ScrollTriggers de outras
        sections (o kill() antigo matava TODOS, inclusive os delas). */
     const gCtx = gsap.context(() => {
-      const obj = { frame: 0 };
-
       // Torna o conteúdo visível imediatamente (sem atraso de scroll)
       if (contentRef.current) {
         gsap.set(contentRef.current, { opacity: 1, y: 0 });
       }
 
-      gsap.to(obj, {
-        frame: TOTAL_FRAMES - 1,
-        ease: 'none',
-        onUpdate: () => draw(obj.frame),
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: '+=320%',
-          scrub: 0.8,
-          pin: true,
-          anticipatePin: 1,
-          onUpdate: (self) => updatePanels(self.progress),
-        },
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: 'top top',
+        end: '+=320%',
+        scrub: 0.8,
+        pin: true,
+        anticipatePin: 1,
+        onUpdate: (self) => updatePanels(self.progress),
       });
     }, sectionRef);
 
@@ -145,13 +102,23 @@ export default function Section2() {
 
   return (
     <section ref={sectionRef} className={styles.section}>
-      {/* Canvas que exibe os frames */}
-      <canvas ref={canvasRef} className={styles.canvas} />
+      {/* Fundo cinematográfico — vídeo do funil, em loop contínuo (igual ao
+          vídeo da hero, ver app/page.tsx). pointer-events:none tira
+          qualquer chance de interação de clique. */}
+      <video
+        className={styles.video}
+        autoPlay
+        loop
+        muted
+        playsInline
+        disablePictureInPicture
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source src="/videos/section2.mp4" type="video/mp4" />
+      </video>
 
-      {/* Overlay suave */}
-      <div className={styles.overlay} />
-
-      {/* Conteúdo que aparece sobre a animação.
+      {/* Conteúdo que aparece sobre a section.
           .content continua inset:0 + grid-center (é assim que fica
           centralizado sem usar transform — o GSAP acima já controla
           transform/opacity nesse mesmo elemento via gsap.set, e um
@@ -171,11 +138,11 @@ export default function Section2() {
               transform inline. */}
           <div ref={astro1Ref} className={`${styles.astronaut} ${styles.astronautBL}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/astronaut.png" alt="" aria-hidden="true" className={styles.astronautImg} />
+            <img src="/images/astronaut.webp" alt="" aria-hidden="true" className={styles.astronautImg} />
           </div>
           <div ref={astro2Ref} className={`${styles.astronaut} ${styles.astronautTR}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/astronaut.png" alt="" aria-hidden="true" className={styles.astronautImg} />
+            <img src="/images/astronaut.webp" alt="" aria-hidden="true" className={styles.astronautImg} />
           </div>
 
           <p className={styles.eyebrow}>Como funciona</p>
@@ -183,7 +150,7 @@ export default function Section2() {
             Um clique e o funil é seu. No ar, pronto pra vender.
           </h2>
           <p className={styles.body}>
-            Escolhe um funil que já fatura e clica. Pronto — ele cai na sua
+            Escolhe um funil que já fatura e clica. Pronto, ele cai na sua
             conta com domínio e hospedagem já configurados. Nada de servidor,
             plugin ou gambiarra. Quer vender em outro mercado? Mais um clique e
             o mesmo funil roda em espanhol ou inglês. A parte técnica é
@@ -203,6 +170,20 @@ export default function Section2() {
         </div>
 
         <div ref={panel2Ref} className={`${styles.panel} ${styles.panel2}`}>
+          {/* Mesmos cantos/flutuação dos astronautas do painel 1 (classes
+              genéricas, não amarradas a "astronaut") — aqui sem subida por
+              scroll, porque não há uma segunda janela de progresso definida
+              pra isso neste painel: só flutuam paradas nos cantos enquanto
+              "A diferença" está em cena. */}
+          <div className={`${styles.astronaut} ${styles.astronautBL}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/translate-icon.webp" alt="" aria-hidden="true" className={styles.astronautImg} />
+          </div>
+          <div className={`${styles.astronaut} ${styles.astronautTR}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/translate-icon.webp" alt="" aria-hidden="true" className={styles.astronautImg} />
+          </div>
+
           <p className={styles.eyebrow}>A diferença</p>
           <h2 className={styles.headline}>
             Traduzir não é trocar palavra.
@@ -210,11 +191,11 @@ export default function Section2() {
             É manter o que faz vender.
           </h2>
           <p className={styles.body}>
-            Tradução literal quebra funil — o gancho perde o tempo, a oferta
+            Tradução literal quebra funil: o gancho perde o tempo, a oferta
             perde o ritmo, o CTA perde a força. O ClonaJá não troca palavra
-            por palavra: adapta o funil pro novo idioma mantendo estrutura,
-            gatilhos e conversão. O resultado é a mesma oferta vendendo no
-            Brasil, na Colômbia ou nos Estados Unidos.
+            por palavra. Ele adapta o funil pro novo idioma mantendo
+            estrutura, gatilhos e conversão. O resultado é a mesma oferta
+            vendendo no Brasil, na Colômbia ou nos Estados Unidos.
           </p>
         </div>
       </div>

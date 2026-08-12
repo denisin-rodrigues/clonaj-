@@ -1,0 +1,14 @@
+/* Sem tamanho próprio de propósito — quem dimensiona é a classe .icon do
+   Section4.module.css, passada via className, exatamente como no <img> que
+   este componente substitui (28px mobile / 40px no card em destaque do
+   desktop). Isto evita dois sistemas de tamanho disputando a mesma div. */
+.host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.host canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

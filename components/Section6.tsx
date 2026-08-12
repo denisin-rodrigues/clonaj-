@@ -1,12 +1,13 @@
 'use client';
 
 import { useId, useState } from 'react';
+import AmbientStars from './AmbientStars';
 import styles from './Section6.module.css';
 
 const FAQ = [
   {
     q: 'O que é um funil validado?',
-    a: 'Funil que rodou no mínimo R$5.000 em tráfego pago real e manteve conversão consistente. Não é exemplo teórico — é funil que vendeu.',
+    a: 'Funil que rodou no mínimo R$5.000 em tráfego pago real e manteve conversão consistente. Não é exemplo teórico, é funil que vendeu.',
   },
   {
     q: 'A tradução perde qualidade?',
@@ -39,6 +40,10 @@ export default function Section6() {
 
   return (
     <section className={styles.section}>
+      {/* Estrelinhas azuis subindo da base — mesmo componente da Section5,
+          aqui nascendo já perto do fim da section (spawnFromBottom). */}
+      <AmbientStars hue="blue" spawnFromBottom />
+
       <h2 className={styles.headline}>Perguntas frequentes</h2>
 
       <div className={styles.list}>

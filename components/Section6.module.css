@@ -3,12 +3,19 @@
    =========================================================================== */
 
 .section {
+  position: relative;
   width: 100%;
-  background: #030304;
+  /* Brilho azul sutil subindo da base — prepara o olho pro glow do topo da
+     Section7 logo abaixo, em vez do corte seco preto→azul que tinha antes. */
+  background:
+    radial-gradient(ellipse 55% 40% at 50% 100%, rgb(var(--brand-blue-rgb, 20 71 230) / 0.14), transparent 75%),
+    #030304;
   padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
 }
 
 .headline {
+  position: relative;
+  z-index: 1;
   margin: 0 0 clamp(32px, 5vh, 48px);
   max-width: 780px;
   margin-inline: auto;
@@ -20,6 +27,8 @@
 }
 
 .list {
+  position: relative;
+  z-index: 1;
   max-width: 760px;
   margin: 0 auto;
   display: flex;

@@ -1,14 +1,5 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import ScrollReveal from './ScrollReveal';
 import styles from './Section4.module.css';
-
-gsap.registerPlugin(ScrollTrigger);
-
-const ICON = (name: string) =>
-  `https://api.iconify.design/${name}.svg?color=%23ffffff`;
 
 type Feature = {
   icon: string;
@@ -18,105 +9,81 @@ type Feature = {
   featured?: boolean;
 };
 
+/* Ícones trocados dos 3D (FolderIcon3D/GlobeIcon3D) e dos iconify duotone
+   pra imagens estáticas coloridas — pedido explícito do usuário. Os
+   componentes 3D continuam no repo (não usados aqui), caso voltem a fazer
+   sentido em outro lugar. */
 const FEATURES: Feature[] = [
   {
-    icon: 'solar:folder-with-files-bold-duotone',
+    icon: '/images/icon-folder.png',
     title: 'Swipe file de funis validados',
     body: 'Biblioteca de funis testados com tráfego pago real. Filtre por nicho, ticket e mercado. Você começa do ponto que outros levaram meses pra chegar.',
     tag: 'Explorar',
     featured: true,
   },
   {
-    icon: 'solar:global-bold-duotone',
+    icon: '/images/icon-globo-terra.png',
     title: 'Tradução com conversão preservada',
     body: 'PT-BR, espanhol e inglês sem quebrar os gatilhos que fazem a oferta vender.',
   },
   {
-    icon: 'solar:copy-bold-duotone',
+    icon: '/images/icon-ponteiro.png',
     title: 'Clone com 1 clique',
     body: 'Funil completo, domínio e hospedagem prontos na sua conta.',
   },
   {
-    icon: 'solar:magic-stick-3-bold-duotone',
+    icon: '/images/icon-ia.png',
     title: 'IA que traduz adaptando a copy',
     body: 'Nada de tradução literal. A IA reescreve a copy do funil pro novo idioma mantendo os gatilhos, o ritmo e a persuasão que fazem a oferta vender.',
   },
 ];
 
+/* Reveal por scroll agora vem do ScrollReveal (IntersectionObserver, sem
+   GSAP) — antes esta section tinha sua própria animação via
+   ScrollTrigger fazendo exatamente a mesma coisa (fade+slide no header e
+   nos cards). Consolidado num componente reutilizável só. */
 export default function Section4() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) return;
-
-    const ctx = gsap.context(() => {
-      const cards = sectionRef.current?.querySelectorAll(`.${styles.card}`);
-      const header = sectionRef.current?.querySelectorAll(`.${styles.headerReveal}`);
-      if (header?.length) {
-        gsap.fromTo(
-          header,
-          { opacity: 0, y: 24 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            stagger: 0.1,
-            scrollTrigger: { trigger: sectionRef.current, start: 'top 75%' },
-          },
-        );
-      }
-      if (cards?.length) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 32 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            stagger: 0.09,
-            scrollTrigger: { trigger: sectionRef.current, start: 'top 65%' },
-          },
-        );
-      }
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section ref={sectionRef} className={styles.section}>
+    <section className={styles.section}>
       <div className={styles.header}>
-        <h2 className={`${styles.headline} ${styles.headerReveal}`}>
-          <span>Tudo que você precisa pra</span>
-          <span>clonar, traduzir e escalar</span>
-        </h2>
-        <p className={`${styles.subheadline} ${styles.headerReveal}`}>
-          Pare de criar funil do zero. Comece do que já provou que converte.
-        </p>
+        <ScrollReveal direction="up" delay={0}>
+          <h2 className={styles.headline}>
+            <span>Tudo que você precisa pra</span>
+            <span>clonar, traduzir e escalar</span>
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal direction="up" delay={150}>
+          <p className={styles.subheadline}>
+            Pare de criar funil do zero. Comece do que já provou que converte.
+          </p>
+        </ScrollReveal>
       </div>
 
       <div className={styles.grid}>
-        {FEATURES.map((f) => (
-          <article
-            key={f.title}
-            className={`${styles.card} ${f.featured ? styles.cardFeatured : ''}`}
-          >
-            <img
-              src={ICON(f.icon)}
-              alt=""
-              aria-hidden="true"
-              className={styles.icon}
-              width={28}
-              height={28}
-              loading="lazy"
-            />
-            <h3 className={styles.cardTitle}>{f.title}</h3>
-            <p className={styles.cardBody}>{f.body}</p>
-            {f.tag ? <span className={styles.cardTag}>{f.tag}</span> : null}
-          </article>
+        {FEATURES.map((f, i) => (
+          <ScrollReveal key={f.title} direction="up" delay={i * 150}>
+            {/* height:100% ("h-full") — o item do grid (este ScrollReveal)
+                estica pra altura da linha por padrão (grid stretch), o
+                card por dentro precisa preencher isso de volta. */}
+            <article
+              className={`${styles.card} ${f.featured ? styles.cardFeatured : ''}`}
+              style={{ height: '100%' }}
+            >
+              <img
+                src={f.icon}
+                alt=""
+                aria-hidden="true"
+                className={`${styles.icon} ${styles.iconAnimated}`}
+                style={{ animationDelay: `${i * -0.8}s` }}
+                width={f.featured ? 40 : 28}
+                height={f.featured ? 40 : 28}
+                loading="lazy"
+              />
+              <h3 className={styles.cardTitle}>{f.title}</h3>
+              <p className={styles.cardBody}>{f.body}</p>
+              {f.tag ? <span className={styles.cardTag}>{f.tag}</span> : null}
+            </article>
+          </ScrollReveal>
         ))}
       </div>
     </section>

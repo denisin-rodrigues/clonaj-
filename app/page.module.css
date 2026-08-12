@@ -16,59 +16,99 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* centraliza a pilha; margens equilibradas */
-  gap: clamp(12px, 2vh, 22px);
+  /* flex-start (não center): headline+subheadline ficam agrupadas no topo
+     (logo abaixo do padding-top/navbar) e o CTA vai pro fim sozinho via
+     margin-top:auto no .ctaWrapper — sem isso os três ficavam centralizados
+     como bloco único, sobrepondo o meio do vídeo (robô/globo). */
+  justify-content: flex-start;
+  /* Mais folga entre headline e subheadline pra legibilidade (era
+     clamp(12px,2vh,22px) — ficava colado demais). */
+  gap: clamp(18px, 3.2vh, 30px);
   /* topo livre para a navbar fixa; respiro embaixo */
   padding: clamp(88px, 14vh, 116px) clamp(20px, 6vw, 40px) clamp(28px, 5vh, 46px);
 
-  /* ---------------------------------------------------------------------
-     Divisória arredondada (referência: rocket-saas.io usa
-     border-radius: 0 0 60px 60px numa section full-bleed, sem gap — a
-     curva lê por causa do contraste navy/branco). Nosso site é preto sobre
-     preto, então o mesmo raio some sozinho: em vez de contraste de cor,
-     a curva ganha um brilho azul que a contorna (mesma família de rim-light
-     já usada na navbar) e um respiro abaixo antes da Section2 começar.
-     Só a base arredonda — o topo encosta na navbar/viewport, igual à
-     referência (que também só arredonda o canto que não toca a borda).
-     --------------------------------------------------------------------- */
-  border-radius: 0 0 clamp(28px, 4vw, 60px) clamp(28px, 4vw, 60px);
+  /* Sombra neutra e discreta, só pra dar profundidade contra o preto da
+     Section2 logo abaixo — sem curva na base (cantos retos). */
   margin-bottom: clamp(10px, 1.8vh, 22px);
-  box-shadow: 0 26px 70px -24px rgb(var(--brand-blue-rgb, 20 71 230) / 0.55);
+  box-shadow: 0 18px 40px -20px rgba(0, 0, 0, 0.6);
 }
 
-/* Slot do robô — controla o espaço que o personagem ocupa em cada layout.
-   No mobile ele é a faixa flexível do meio do empilhamento. */
-.robotSlot {
-  position: relative;
-  order: 2;
-  z-index: 0;
-  width: 100%;
-  /* Altura EXPLÍCITA (não flex-grow): garante que o height:100% do .host
-     resolva e o canvas ocupe a faixa toda, sem vão. */
-  flex: 0 0 auto;
-  height: clamp(300px, 46svh, 460px);
-}
-
-/* .robot carrega só o enquadramento (o tamanho vem do .host do componente,
-   que preenche o slot). */
-.robot {
-  --robot-align-x: 0.5;
-  --robot-align-y: 0.5;
-  --robot-zoom: 0.95;
-}
-
-/* ---------------------------------------------------------------------------
-   Fundo Three.js de linhas fluidas (componente LineBackground).
-   Fica ACIMA do canvas do robô com mix-blend-mode: screen — o preto do shader
-   não altera nada, só as linhas azuis somam luz. O fade central (no shader)
-   preserva o robô. Cobre a hero inteira, fora do fluxo.
-   ------------------------------------------------------------------------ */
-.bgFx {
+/* Campo de estrelas — atrás do vídeo (mesma camada do que era o bgFx),
+   pra combinar com as estrelas do próprio vídeo do universo: onde o
+   object-fit:contain deixa barra preta (topo/base no mobile, laterais no
+   desktop ultrawide), esse fundo continua a cena em vez de deixar um vazio
+   preto liso. Duas camadas de SVG (pontinhos pequenos e densos + alguns
+   maiores e mais raros) pra dar sensação de profundidade, geradas uma vez
+   (posições fixas) — sem custo de runtime, é só background-image. */
+.starfield {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  mix-blend-mode: screen;
+  background-image:
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22220%22%20height%3D%22220%22%20viewBox%3D%220%200%20220%20220%22%3E%3Ccircle%20cx%3D%2271.2%22%20cy%3D%2233.2%22%20r%3D%220.73%22%20fill%3D%22white%22%20fill-opacity%3D%220.28%22%2F%3E%3Ccircle%20cx%3D%22117.9%22%20cy%3D%2280.5%22%20r%3D%220.43%22%20fill%3D%22white%22%20fill-opacity%3D%220.43%22%2F%3E%3Ccircle%20cx%3D%228.2%22%20cy%3D%2295.4%22%20r%3D%220.43%22%20fill%3D%22white%22%20fill-opacity%3D%220.28%22%2F%3E%3Ccircle%20cx%3D%2293.4%22%20cy%3D%22181.9%22%20r%3D%220.46%22%20fill%3D%22white%22%20fill-opacity%3D%220.33%22%2F%3E%3Ccircle%20cx%3D%22138.0%22%20cy%3D%22208.5%22%20r%3D%220.69%22%20fill%3D%22white%22%20fill-opacity%3D%220.39%22%2F%3E%3Ccircle%20cx%3D%22214.8%22%20cy%3D%2210.2%22%20r%3D%220.83%22%20fill%3D%22white%22%20fill-opacity%3D%220.35%22%2F%3E%3Ccircle%20cx%3D%2231.7%22%20cy%3D%2225.9%22%20r%3D%220.55%22%20fill%3D%22white%22%20fill-opacity%3D%220.54%22%2F%3E%3Ccircle%20cx%3D%2239.8%22%20cy%3D%22128.0%22%20r%3D%220.72%22%20fill%3D%22white%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%22120.5%22%20cy%3D%2213.8%22%20r%3D%220.43%22%20fill%3D%22white%22%20fill-opacity%3D%220.32%22%2F%3E%3Ccircle%20cx%3D%22149.7%22%20cy%3D%2294.1%22%20r%3D%220.56%22%20fill%3D%22white%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%2299.7%22%20cy%3D%2265.9%22%20r%3D%220.8%22%20fill%3D%22white%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%2253.7%22%20cy%3D%22126.4%22%20r%3D%220.66%22%20fill%3D%22white%22%20fill-opacity%3D%220.56%22%2F%3E%3Ccircle%20cx%3D%22160.5%22%20cy%3D%2263.3%22%20r%3D%220.89%22%20fill%3D%22white%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%2292.0%22%20cy%3D%22166.6%22%20r%3D%220.48%22%20fill%3D%22white%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%228.6%22%20cy%3D%22147.0%22%20r%3D%220.78%22%20fill%3D%22white%22%20fill-opacity%3D%220.45%22%2F%3E%3Ccircle%20cx%3D%22192.6%22%20cy%3D%2269.0%22%20r%3D%220.75%22%20fill%3D%22white%22%20fill-opacity%3D%220.46%22%2F%3E%3Ccircle%20cx%3D%22127.6%22%20cy%3D%22100.4%22%20r%3D%220.82%22%20fill%3D%22white%22%20fill-opacity%3D%220.58%22%2F%3E%3Ccircle%20cx%3D%22104.3%22%20cy%3D%22146.1%22%20r%3D%220.43%22%20fill%3D%22white%22%20fill-opacity%3D%220.5%22%2F%3E%3Ccircle%20cx%3D%22142.4%22%20cy%3D%22218.5%22%20r%3D%220.81%22%20fill%3D%22white%22%20fill-opacity%3D%220.35%22%2F%3E%3Ccircle%20cx%3D%2284.9%22%20cy%3D%22147.1%22%20r%3D%220.41%22%20fill%3D%22white%22%20fill-opacity%3D%220.41%22%2F%3E%3Ccircle%20cx%3D%2237.0%22%20cy%3D%2225.8%22%20r%3D%220.43%22%20fill%3D%22white%22%20fill-opacity%3D%220.52%22%2F%3E%3Ccircle%20cx%3D%2228.5%22%20cy%3D%2254.5%22%20r%3D%220.6%22%20fill%3D%22white%22%20fill-opacity%3D%220.55%22%2F%3E%3Ccircle%20cx%3D%2217.7%22%20cy%3D%2298.8%22%20r%3D%220.67%22%20fill%3D%22white%22%20fill-opacity%3D%220.56%22%2F%3E%3Ccircle%20cx%3D%22180.2%22%20cy%3D%22190.1%22%20r%3D%220.54%22%20fill%3D%22white%22%20fill-opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%2278.9%22%20cy%3D%22194.5%22%20r%3D%220.88%22%20fill%3D%22white%22%20fill-opacity%3D%220.3%22%2F%3E%3Ccircle%20cx%3D%2238.8%22%20cy%3D%2251.0%22%20r%3D%220.52%22%20fill%3D%22white%22%20fill-opacity%3D%220.42%22%2F%3E%3Ccircle%20cx%3D%22129.6%22%20cy%3D%2257.8%22%20r%3D%220.4%22%20fill%3D%22white%22%20fill-opacity%3D%220.4%22%2F%3E%3Ccircle%20cx%3D%2281.2%22%20cy%3D%22124.6%22%20r%3D%220.88%22%20fill%3D%22white%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%22113.4%22%20cy%3D%22135.9%22%20r%3D%220.74%22%20fill%3D%22white%22%20fill-opacity%3D%220.27%22%2F%3E%3Ccircle%20cx%3D%22197.9%22%20cy%3D%22171.6%22%20r%3D%220.84%22%20fill%3D%22white%22%20fill-opacity%3D%220.53%22%2F%3E%3Ccircle%20cx%3D%2286.3%22%20cy%3D%2287.8%22%20r%3D%220.45%22%20fill%3D%22white%22%20fill-opacity%3D%220.47%22%2F%3E%3Ccircle%20cx%3D%2213.7%22%20cy%3D%2214.8%22%20r%3D%220.5%22%20fill%3D%22white%22%20fill-opacity%3D%220.31%22%2F%3E%3Ccircle%20cx%3D%2274.8%22%20cy%3D%2211.6%22%20r%3D%220.4%22%20fill%3D%22white%22%20fill-opacity%3D%220.3%22%2F%3E%3Ccircle%20cx%3D%2222.3%22%20cy%3D%2280.0%22%20r%3D%220.41%22%20fill%3D%22white%22%20fill-opacity%3D%220.56%22%2F%3E%3Ccircle%20cx%3D%22135.1%22%20cy%3D%2232.7%22%20r%3D%220.53%22%20fill%3D%22white%22%20fill-opacity%3D%220.37%22%2F%3E%3Ccircle%20cx%3D%2280.1%22%20cy%3D%2227.0%22%20r%3D%220.82%22%20fill%3D%22white%22%20fill-opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22102.5%22%20cy%3D%22106.4%22%20r%3D%220.44%22%20fill%3D%22white%22%20fill-opacity%3D%220.29%22%2F%3E%3Ccircle%20cx%3D%2275.4%22%20cy%3D%2258.2%22%20r%3D%220.81%22%20fill%3D%22white%22%20fill-opacity%3D%220.31%22%2F%3E%3Ccircle%20cx%3D%225.1%22%20cy%3D%22209.2%22%20r%3D%220.66%22%20fill%3D%22white%22%20fill-opacity%3D%220.3%22%2F%3E%3Ccircle%20cx%3D%22119.5%22%20cy%3D%225.9%22%20r%3D%220.66%22%20fill%3D%22white%22%20fill-opacity%3D%220.59%22%2F%3E%3Ccircle%20cx%3D%22189.9%22%20cy%3D%22153.2%22%20r%3D%220.53%22%20fill%3D%22white%22%20fill-opacity%3D%220.38%22%2F%3E%3Ccircle%20cx%3D%2236.7%22%20cy%3D%22169.8%22%20r%3D%220.67%22%20fill%3D%22white%22%20fill-opacity%3D%220.52%22%2F%3E%3Ccircle%20cx%3D%2272.5%22%20cy%3D%2249.1%22%20r%3D%220.81%22%20fill%3D%22white%22%20fill-opacity%3D%220.59%22%2F%3E%3Ccircle%20cx%3D%22187.6%22%20cy%3D%22177.3%22%20r%3D%220.81%22%20fill%3D%22white%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%2249.9%22%20cy%3D%22113.9%22%20r%3D%220.58%22%20fill%3D%22white%22%20fill-opacity%3D%220.26%22%2F%3E%3Ccircle%20cx%3D%226.1%22%20cy%3D%2261.5%22%20r%3D%220.53%22%20fill%3D%22white%22%20fill-opacity%3D%220.49%22%2F%3E%3Ccircle%20cx%3D%22210.4%22%20cy%3D%2298.4%22%20r%3D%220.87%22%20fill%3D%22white%22%20fill-opacity%3D%220.6%22%2F%3E%3Ccircle%20cx%3D%22210.1%22%20cy%3D%2280.2%22%20r%3D%220.51%22%20fill%3D%22white%22%20fill-opacity%3D%220.33%22%2F%3E%3Ccircle%20cx%3D%2243.3%22%20cy%3D%2245.0%22%20r%3D%220.71%22%20fill%3D%22white%22%20fill-opacity%3D%220.57%22%2F%3E%3Ccircle%20cx%3D%22184.9%22%20cy%3D%22105.5%22%20r%3D%220.73%22%20fill%3D%22white%22%20fill-opacity%3D%220.53%22%2F%3E%3Ccircle%20cx%3D%2218.7%22%20cy%3D%22145.3%22%20r%3D%220.85%22%20fill%3D%22white%22%20fill-opacity%3D%220.52%22%2F%3E%3Ccircle%20cx%3D%22165.0%22%20cy%3D%22105.2%22%20r%3D%220.49%22%20fill%3D%22white%22%20fill-opacity%3D%220.53%22%2F%3E%3Ccircle%20cx%3D%2273.2%22%20cy%3D%22176.2%22%20r%3D%220.89%22%20fill%3D%22white%22%20fill-opacity%3D%220.39%22%2F%3E%3Ccircle%20cx%3D%2288.3%22%20cy%3D%22208.3%22%20r%3D%220.76%22%20fill%3D%22white%22%20fill-opacity%3D%220.31%22%2F%3E%3Ccircle%20cx%3D%2227.9%22%20cy%3D%2233.3%22%20r%3D%220.85%22%20fill%3D%22white%22%20fill-opacity%3D%220.53%22%2F%3E%3C%2Fsvg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22380%22%20height%3D%22380%22%20viewBox%3D%220%200%20380%20380%22%3E%3Ccircle%20cx%3D%2255.5%22%20cy%3D%22314.1%22%20r%3D%221.68%22%20fill%3D%22white%22%20fill-opacity%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%22133.2%22%20cy%3D%22208.5%22%20r%3D%221.0%22%20fill%3D%22white%22%20fill-opacity%3D%220.51%22%2F%3E%3Ccircle%20cx%3D%22368.9%22%20cy%3D%22246.9%22%20r%3D%221.32%22%20fill%3D%22white%22%20fill-opacity%3D%220.92%22%2F%3E%3Ccircle%20cx%3D%22164.8%22%20cy%3D%22331.3%22%20r%3D%221.56%22%20fill%3D%22white%22%20fill-opacity%3D%220.59%22%2F%3E%3Ccircle%20cx%3D%2295.7%22%20cy%3D%22111.3%22%20r%3D%221.09%22%20fill%3D%22white%22%20fill-opacity%3D%220.76%22%2F%3E%3Ccircle%20cx%3D%2298.6%22%20cy%3D%22159.2%22%20r%3D%221.0%22%20fill%3D%22white%22%20fill-opacity%3D%220.91%22%2F%3E%3Ccircle%20cx%3D%22134.4%22%20cy%3D%22174.1%22%20r%3D%221.37%22%20fill%3D%22white%22%20fill-opacity%3D%220.91%22%2F%3E%3Ccircle%20cx%3D%22159.8%22%20cy%3D%22348.7%22%20r%3D%221.3%22%20fill%3D%22white%22%20fill-opacity%3D%220.74%22%2F%3E%3Ccircle%20cx%3D%22198.9%22%20cy%3D%227.1%22%20r%3D%221.25%22%20fill%3D%22white%22%20fill-opacity%3D%220.58%22%2F%3E%3Ccircle%20cx%3D%221.5%22%20cy%3D%22303.7%22%20r%3D%221.04%22%20fill%3D%22white%22%20fill-opacity%3D%220.71%22%2F%3E%3Ccircle%20cx%3D%22275.6%22%20cy%3D%22211.5%22%20r%3D%221.16%22%20fill%3D%22white%22%20fill-opacity%3D%220.73%22%2F%3E%3Ccircle%20cx%3D%22211.1%22%20cy%3D%22298.0%22%20r%3D%220.98%22%20fill%3D%22white%22%20fill-opacity%3D%220.75%22%2F%3E%3Ccircle%20cx%3D%2294.4%22%20cy%3D%22105.2%22%20r%3D%221.52%22%20fill%3D%22white%22%20fill-opacity%3D%220.73%22%2F%3E%3Ccircle%20cx%3D%22213.5%22%20cy%3D%22288.8%22%20r%3D%221.63%22%20fill%3D%22white%22%20fill-opacity%3D%220.7%22%2F%3E%3Ccircle%20cx%3D%22232.8%22%20cy%3D%22192.1%22%20r%3D%221.31%22%20fill%3D%22white%22%20fill-opacity%3D%220.81%22%2F%3E%3Ccircle%20cx%3D%22171.9%22%20cy%3D%22202.6%22%20r%3D%221.28%22%20fill%3D%22white%22%20fill-opacity%3D%220.92%22%2F%3E%3Ccircle%20cx%3D%22265.7%22%20cy%3D%22333.1%22%20r%3D%221.65%22%20fill%3D%22white%22%20fill-opacity%3D%220.62%22%2F%3E%3Ccircle%20cx%3D%22212.6%22%20cy%3D%22358.4%22%20r%3D%221.57%22%20fill%3D%22white%22%20fill-opacity%3D%220.56%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: repeat, repeat;
+  background-size: 220px 220px, 380px 380px;
+  background-position: 0 0, 40px 90px;
+  opacity: 0.85;
+}
+
+/* Suaviza a borda do vídeo (object-fit:contain) contra o campo de
+   estrelas atrás — sem isto a borda do frame do vídeo corta seco contra o
+   fundo. A vinheta radial sozinha (tentativa anterior) ficava quase
+   transparente perto do centro da caixa, exatamente onde a borda real do
+   vídeo (topo/base, que o contain não estica até a borda da hero) costuma
+   cair — por isso ainda aparecia uma linha reta ali. O gradiente linear
+   escurece topo e base de propósito, numa faixa generosa, cobrindo essa
+   borda não importa exatamente onde ela caia. */
+.heroVideoFade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Base bem mais generosa que o topo — o vídeo mobile tem o globo
+     terminando bem antes da borda da caixa, então precisa de uma faixa
+     de fade bem maior ali pra cobrir de verdade (a tentativa anterior,
+     74%, começava tarde demais e ainda deixava um risco visível). */
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.95) 0%,
+      transparent 26%,
+      transparent 42%,
+      rgba(0, 0, 0, 0.97) 100%
+    ),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Vídeo do robô animando sobre a Terra — mesma camada (z-index) do bgFx,
+   mas depois dele no HTML: em z-index empatado, ordem do DOM decide quem
+   pinta por cima, então o vídeo cobre o canvas do robô e as linhas.
+   Fica ATRÁS do heroFade e do texto (ambos z-index maior). */
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  /* contain, não cover: cover escala o vídeo pra preencher a caixa
+     inteira, e quanto mais larga a hero fica (telas ultrawide), mais ele
+     precisava ampliar pra cobrir — cortando cada vez mais o robô/Terra.
+     Com contain o vídeo NUNCA é cortado, em nenhuma proporção de tela; a
+     "moldura" que sobra nas bordas (onde a proporção não bate) é a própria
+     hero preta, que já combina com o resto do fundo. */
+  object-fit: contain;
+  /* object-position (tentativas anteriores: 47%/58%/63%/78%) não fazia
+     NADA visível — o vídeo mobile já preenche a caixa quase inteira com
+     contain (proporção parecida com a da hero), então não sobra margem
+     livre pra reposicionar dentro da caixa. transform SEMPRE desloca de
+     verdade, não depende de sobra: scale abre uma margem real ao redor
+     (senão o translate cortaria o rodapé no overflow:hidden da hero) e
+     translateY empurra o conteúdo pra baixo dentro dessa margem. */
+  transform: scale(0.72) translateY(10%);
 }
 
 /* Funde a base da hero com o preto sólido da Section2 logo abaixo. O shader
@@ -79,7 +119,10 @@
 .heroFade {
   position: absolute;
   inset: auto 0 0 0;
-  height: clamp(140px, 22vh, 260px);
+  /* Mais alto que antes (140-260px) — a borda do globo no vídeo mobile
+     ficava perto demais do fim dessa faixa, o fade não tinha altura
+     suficiente pra suavizar de verdade. */
+  height: clamp(200px, 32vh, 380px);
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(to bottom, transparent 0%, #000000 100%);
@@ -92,6 +135,10 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  /* Sobe headline+subheadline um pouco (pra não ficar em cima da cabeça
+     do robô no vídeo), mas sem grudar no padding-top/navbar — -5vh
+     (tentativa anterior) ficou colado demais. */
+  margin-top: -2vh;
 }
 
 .headline {
@@ -103,6 +150,15 @@
   color: #ffffff;
   text-align: center;
   pointer-events: none;
+
+  /* Mesmo tratamento da Section2: o vídeo é claro em partes (robô, Terra)
+     e a posição exata do conteúdo varia por aparelho (barra de endereço,
+     notch) — sombra em duas camadas garante legibilidade mesmo quando o
+     texto acaba caindo em cima de uma parte clara do vídeo. */
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 4px 16px rgba(0, 0, 0, 0.75),
+    0 10px 40px rgba(0, 0, 0, 0.55);
 }
 
 /* Duas linhas exatas — sem reagrupar palavras. */
@@ -117,6 +173,11 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* text-shadow é herdado do .headline pai — sobre texto com fill
+     transparent (gradiente via background-clip) a sombra escurecia o
+     azul. Sem sombra aqui: essa parte já tem contraste próprio (é um
+     gradiente saturado, não texto branco fino) e não precisava dela. */
+  text-shadow: none;
 }
 
 .subheadline {
@@ -130,11 +191,28 @@
   color: #ffffff;
   text-align: center;
   pointer-events: none;
+
+  /* Ver comentário em .headline — mesmo motivo, essa é a que mais cai em
+     cima do robô/globo. */
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 4px 16px rgba(0, 0, 0, 0.75),
+    0 10px 40px rgba(0, 0, 0, 0.55);
 }
 
 .ctaWrapper {
   order: 4;
   z-index: 2;
+  /* Empurra só o CTA pro fim do flex (truque de margin auto) — headline e
+     subheadline continuam grudados no topo, o CTA fica sozinho perto do
+     padding-bottom, abaixo do globo. Sem efeito no desktop (vira
+     position:absolute lá, ver media query). */
+  margin-top: auto;
+  /* Encostado 100% no fundo (sem este respiro) ele sumia em celular real:
+     100dvh nem sempre desconta a barra de endereço do navegador mobile
+     enquanto ela ainda está visível, então o CTA ficava abaixo da área
+     realmente vísivel mesmo "cabendo" na conta do CSS. */
+  margin-bottom: 6vh;
 }
 
 .hint {
@@ -187,25 +265,6 @@
     padding: 0;
     gap: 0;
     overflow: hidden;
-  }
-
-  /* robô volta a ocupar a hero inteira, atrás de tudo.
-     height:auto é essencial aqui: a regra mobile fixa uma height explícita
-     no .robotSlot, e num elemento absolute com top+bottom+height todos
-     definidos, o CSS ignora o bottom e recalcula a partir da height — ou
-     seja, sem resetar isso o inset:0 perde efeito e o slot fica preso ao
-     tamanho mobile, empurrando o robô para o topo da hero. */
-  .robotSlot {
-    position: absolute;
-    inset: 0;
-    height: auto;
-    order: 0;
-    flex: none;
-    min-height: 0;
-  }
-  .robot {
-    --robot-align-y: 0.5;
-    --robot-zoom: 0.72;
   }
 
   /* Headline: esquerda, centralizada na vertical */

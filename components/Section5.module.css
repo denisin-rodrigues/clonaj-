@@ -5,17 +5,46 @@
 .section {
   position: relative;
   width: 100%;
-  background: #030304;
+  /* Degradê azul discreto atrás do logo/estrelinhas — dá um efeito de
+     iluminação ambiente sem competir com os cards de preço mais abaixo
+     (a elipse é rasa e centrada no topo, onde fica o selo animado). */
+  background:
+    radial-gradient(ellipse 65% 45% at 50% 0%, rgb(var(--brand-blue-rgb, 20 71 230) / 0.22), transparent 70%),
+    #030304;
   padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
 }
 
+/* Sem position/z-index aqui de propósito: isso criava um stacking context
+   que prendia o mix-blend-mode:screen do .logoMark, fazendo-o misturar só
+   com o próprio .header (sem nada colorido lá dentro) em vez de com o
+   fundo de verdade da section — daí a borda preta do vídeo aparecendo
+   contra o degradê azul. Sem stacking context aqui, o vídeo passa a
+   compor direto contra .section (funciona) e ainda assim fica atrás do
+   .host das estrelas (que é position:absolute com z-index próprio, sempre
+   pintado por cima de conteúdo em fluxo normal não-posicionado). */
 .header {
   max-width: 620px;
   margin: 0 auto clamp(44px, 6vh, 64px);
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
+}
+
+/* Selo animado acima do título — pequeno de propósito ("não pode ficar
+   muito grande"). screen "come" o preto de fundo do vídeo contra o
+   #030304 quase-preto da section, então só o brilho azul/vidro do logo
+   fica visível, sem retângulo/caixa aparente em volta.
+
+   Histórico do tamanho: 100→140px (+40%) → 161/173px (+15%) →
+   200/216px (+~24%, mais um aumento). */
+.logoMark {
+  width: clamp(200px, 18vw, 216px);
+  aspect-ratio: 16 / 9;
+  margin-bottom: 4px;
+  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 .headline {
@@ -42,6 +71,8 @@
 }
 
 .grid {
+  position: relative;
+  z-index: 1;
   max-width: 1080px;
   margin: 0 auto;
   display: grid;

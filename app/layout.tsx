@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Navbar } from '@/components/Navbar';
+import ProgressiveBlur from '@/components/ProgressiveBlur';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -29,6 +30,9 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <Navbar />
         {children}
+        {/* Depois do Footer (que fecha {children}), fora de qualquer
+            <main> — camada fixa de blur, não faz parte do fluxo da página. */}
+        <ProgressiveBlur />
       </body>
     </html>
   );
