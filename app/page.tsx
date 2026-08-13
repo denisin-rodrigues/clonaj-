@@ -59,18 +59,31 @@ export default function Home() {
                 item do flex da .hero (order:1), então quem precisa das
                 propriedades de flex é o próprio elemento que o
                 ScrollReveal renderiza, não um wrapper extra por dentro. */}
-            <ScrollReveal className={styles.content} direction="left" delay={0}>
-              <h1 className={styles.headline}>
-                <span>Um clique pra clonar.</span>
-                <span className={styles.headlineEcho}>Outro pra traduzir</span>
-              </h1>
-            </ScrollReveal>
+            {/* .content faz a centralização vertical no desktop via
+                transform:translateY(-50%) (ver CSS) — precisa estar num
+                wrapper "estático", porque o ScrollReveal põe o PRÓPRIO
+                transform inline (da animação de entrada) no elemento que
+                ele renderiza, e isso sobrescreveria/quebraria a
+                centralização se estivesse na mesma div (mesmo bug do
+                .hint, documentado ali). */}
+            <div className={styles.content}>
+              <ScrollReveal direction="left" delay={0}>
+                <h1 className={styles.headline}>
+                  <span>Um clique pra clonar.</span>
+                  <span className={styles.headlineEcho}>Outro pra traduzir</span>
+                </h1>
+              </ScrollReveal>
+            </div>
 
-            {/* Mobile: abaixo do robô | Desktop: direita, verticalmente centralizada */}
-            <ScrollReveal className={styles.subheadline} direction="left" delay={150}>
-              Clone qualquer funil de vendas validado e traduza pra português,
-              espanhol ou inglês sem criar do zero, sem traduzir na mão.
-            </ScrollReveal>
+            {/* Mobile: abaixo do robô | Desktop: direita, verticalmente
+                centralizada — mesmo motivo do .content acima pro wrapper
+                separado. */}
+            <div className={styles.subheadline}>
+              <ScrollReveal direction="left" delay={150}>
+                Clone qualquer funil de vendas validado e traduza pra português,
+                espanhol ou inglês sem criar do zero, sem traduzir na mão.
+              </ScrollReveal>
+            </div>
 
             {/* Wrapper de posicionamento — ShinyButton não recebe position:absolute diretamente.
                 blurHole: ProgressiveBlur recorta um buraco no blur fixo bem em cima
