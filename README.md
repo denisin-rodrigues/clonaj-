@@ -55,8 +55,10 @@ Copie e cole esse prompt inteiro:
 Este é o código de um site em Next.js (React + TypeScript). Preciso que
 você:
 
-1. Verifique se o Node.js está instalado no meu computador (versão 20 ou
-   mais nova). Se não estiver, me explique de forma simples como instalar.
+1. Verifique se o Node.js (versão 20+), o Git e o GitHub CLI (comando
+   `gh`) estão instalados no meu computador. Se algum não estiver, me
+   explique de forma simples como instalar (ou instale você mesmo se
+   conseguir).
 2. Instale as dependências do projeto (npm install).
 3. Rode o site localmente (npm run dev) e me diga o endereço
    (normalmente http://localhost:3000) pra eu abrir no navegador e
@@ -64,43 +66,59 @@ você:
 4. Depois que eu confirmar que o site abriu certo, me pergunte se eu
    quero mudar algum texto, imagem, cor ou o domínio/link que aparece no
    site, e faça essas alterações comigo, uma de cada vez.
-5. Quando eu disser que está pronto, me ajude a colocar o site no ar.
-   Pergunte se eu quero publicar na Vercel direto da minha pasta (mais
-   fácil e gratuito, não precisa de GitHub), subir os arquivos numa
-   hospedagem tipo Hostinger, ou enviar o projeto pra um repositório meu
-   no GitHub (nesse caso, NUNCA use a tela de "upload de arquivos" do
-   site do GitHub — ela trava com projetos grandes; use os comandos de
-   git pra enviar). Siga o caminho que eu escolher, me explicando cada
-   passo em linguagem simples, sem termos técnicos difíceis, como se eu
-   nunca tivesse programado antes.
+5. Quando eu disser que está pronto, publique o site do jeito mais
+   automático possível, nessa ordem:
+   a. Rode `gh auth login` — isso abre uma tela no navegador pra eu
+      fazer login com minha conta do GitHub (ou criar uma, é grátis) e
+      clicar em autorizar. Não preciso gerar nem colar nenhum token.
+   b. Depois disso, crie um repositório novo pra mim e suba o código
+      com um comando `gh repo create` (algo como
+      `gh repo create meu-site --public --source=. --remote=origin --push`).
+   c. Instale a Vercel CLI se precisar (`npm i -g vercel`) e rode
+      `vercel login` — de novo, só abrir o link que aparece e confirmar,
+      sem token nenhum.
+   d. Rode `vercel link` e depois `vercel --prod` pra publicar de
+      verdade, e me mande o link final do site no ar.
+   e. Me pergunte se eu tenho um domínio próprio. Se eu tiver, me ajude
+      a conectar: use os comandos da Vercel pra adicionar o domínio ao
+      projeto e me diga exatamente quais dados (tipo CNAME ou registro
+      A) eu preciso cadastrar no painel onde comprei o domínio.
 
-Importante: eu não entendo de programação. Explique cada passo devagar,
-uma coisa de cada vez, e espere minha confirmação antes de continuar pro
-próximo passo.
+Importante: eu não entendo de programação. NUNCA me peça pra gerar,
+copiar ou colar um "token" ou "chave de API" na mão — use sempre os
+comandos de login que abrem uma tela no navegador pra eu confirmar com
+um clique (é isso que `gh auth login` e `vercel login` fazem). Explique
+cada passo devagar, uma coisa de cada vez, e espere minha confirmação
+antes de continuar pro próximo passo.
 ```
 
-A IA vai cuidar da parte técnica e ir te guiando passo a passo pelo chat.
+A IA vai cuidar de tudo — criar seu repositório, subir o código e
+publicar com seu próprio link — e você só vai precisar clicar em "Login"
+e "Autorizar" quando o navegador abrir, do mesmo jeito que entra em
+qualquer site com sua conta do Google ou GitHub. Nenhum token pra copiar
+ou colar.
 
 ---
 
 ## 🌐 3. Colocar o site no ar com o seu próprio domínio
 
-Você pode pedir pra IA fazer isso pelo prompt acima (ela publica direto
-da sua pasta, sem precisar mexer em GitHub — é o caminho mais simples),
-ou seguir você mesmo um dos caminhos abaixo.
+O prompt do passo 2 já faz isso por você — cria o repositório no seu
+GitHub, sobe o código e publica na Vercel, tudo por comando (sem token,
+só login clicando no navegador). Depois de publicado, é só me dizer no
+chat com a IA qual é o seu domínio (ex: `meusite.com.br`) que ela
+adiciona ao projeto na Vercel e te diz exatamente quais dados cadastrar
+no painel de onde você comprou o domínio (Registro.br, GoDaddy,
+Hostinger, etc.).
 
-### Opção A — Vercel (mais fácil, recomendado)
+Se preferir fazer você mesmo, sem IA guiando, veja a Opção A abaixo. E
+se sua hospedagem não for a Vercel (por exemplo, você já paga um plano
+na Hostinger e quer usar ele), veja a Opção B.
 
-A Vercel é gratuita para esse tipo de site e é a forma mais simples de
-colocar no ar. **Você não precisa de conta no GitHub pra isso** — é só
-pedir pra IA no prompt acima (passo 5) publicar direto da pasta do seu
-computador.
-
-Se preferir fazer você mesmo, sem IA:
+### Opção A — Vercel manual (sem IA)
 
 1. Crie uma conta em **vercel.com** (dá pra entrar com e-mail)
-2. Instale a ferramenta de publicação: abra o terminal na pasta do
-   projeto e rode `npx vercel login`, depois `npx vercel --prod`
+2. Abra o terminal na pasta do projeto e rode `npx vercel login`, depois
+   `npx vercel --prod`
 3. Siga as perguntas que aparecem no terminal (aceite as opções padrão
    apertando Enter)
 4. Pra usar seu próprio domínio: dentro do projeto no site da Vercel, vá
@@ -111,14 +129,8 @@ Se preferir fazer você mesmo, sem IA:
 > ⚠️ **Não tente arrastar o projeto inteiro (ou o .zip baixado) pra
 > dentro do GitHub pelo site** ("Add file → Upload files" ou a tela de
 > "arraste arquivos aqui"). Esse jeito só aceita arquivos de até 25MB
-> cada, trava fácil com muitos arquivos de uma vez e não é feito pra
-> subir um projeto inteiro. Se você quiser mesmo ter uma cópia no seu
-> GitHub (por exemplo, pra Vercel publicar sozinha toda vez que algo
-> mudar), o jeito certo é: criar um repositório **vazio** no GitHub (só
-> clicar em "New repository", sem enviar nenhum arquivo) e depois pedir
-> pra IA, usando o prompt acima, "subir esse projeto pro meu repositório
-> [link do repositório vazio]" — ela faz isso por comandos, sem passar
-> pela tela de upload.
+> cada e não é feito pra subir um projeto inteiro — use sempre o
+> `gh repo create ... --push` do prompt acima, que faz isso por comando.
 
 ### Opção B — Hostinger (ou qualquer hospedagem)
 
@@ -165,6 +177,13 @@ Sim. Qualquer IA que consiga rodar comandos no terminal e editar arquivos
 sozinha serve — o **Google Antigravity** é a opção gratuita recomendada
 (antigravity.google). O prompt do passo 2 funciona igual em qualquer uma
 delas, é só colar.
+
+**Preciso gerar algum token ou chave de API pra IA subir o projeto pro
+meu GitHub e fazer o deploy?**
+Não. O login do GitHub (`gh auth login`) e da Vercel (`vercel login`)
+abrem uma tela no navegador pra você clicar em "Autorizar" com sua
+própria conta — igual entrar em qualquer site. Nenhum token pra gerar,
+copiar ou colar em lugar nenhum.
 
 **Posso usar meu próprio domínio (ex: meusite.com.br)?**
 Sim — em ambas as opções acima (Vercel ou Hostinger) tem um passo
