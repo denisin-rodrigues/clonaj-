@@ -55,10 +55,14 @@ você:
    quero mudar algum texto, imagem, cor ou o domínio/link que aparece no
    site, e faça essas alterações comigo, uma de cada vez.
 5. Quando eu disser que está pronto, me ajude a colocar o site no ar.
-   Pergunte se eu quero publicar na Vercel (mais fácil e gratuito) ou
-   subir os arquivos numa hospedagem tipo Hostinger, e siga o caminho que
-   eu escolher, me explicando cada passo em linguagem simples, sem termos
-   técnicos difíceis, como se eu nunca tivesse programado antes.
+   Pergunte se eu quero publicar na Vercel direto da minha pasta (mais
+   fácil e gratuito, não precisa de GitHub), subir os arquivos numa
+   hospedagem tipo Hostinger, ou enviar o projeto pra um repositório meu
+   no GitHub (nesse caso, NUNCA use a tela de "upload de arquivos" do
+   site do GitHub — ela trava com projetos grandes; use os comandos de
+   git pra enviar). Siga o caminho que eu escolher, me explicando cada
+   passo em linguagem simples, sem termos técnicos difíceis, como se eu
+   nunca tivesse programado antes.
 
 Importante: eu não entendo de programação. Explique cada passo devagar,
 uma coisa de cada vez, e espere minha confirmação antes de continuar pro
@@ -71,23 +75,40 @@ A IA vai cuidar da parte técnica e ir te guiando passo a passo pelo chat.
 
 ## 🌐 3. Colocar o site no ar com o seu próprio domínio
 
-Você pode pedir pra IA fazer isso pelo prompt acima, ou seguir você
-mesmo um dos dois caminhos abaixo.
+Você pode pedir pra IA fazer isso pelo prompt acima (ela publica direto
+da sua pasta, sem precisar mexer em GitHub — é o caminho mais simples),
+ou seguir você mesmo um dos caminhos abaixo.
 
 ### Opção A — Vercel (mais fácil, recomendado)
 
 A Vercel é gratuita para esse tipo de site e é a forma mais simples de
-colocar no ar.
+colocar no ar. **Você não precisa de conta no GitHub pra isso** — é só
+pedir pra IA no prompt acima (passo 5) publicar direto da pasta do seu
+computador.
 
-1. Crie uma conta em **vercel.com** (dá pra entrar direto com GitHub)
-2. Clique em **"Add New" → "Project"**
-3. Se você subiu os arquivos pro *seu* GitHub, selecione o repositório.
-   Se não, pode arrastar a pasta do projeto direto na tela de importação
-4. Clique em **"Deploy"** e espere terminar (leva 1-2 minutos)
-5. Pra usar seu próprio domínio: dentro do projeto, vá em
-   **Settings → Domains**, digite seu domínio (ex: `meusite.com.br`) e a
-   Vercel mostra exatamente quais dados cadastrar lá onde você comprou o
-   domínio (Registro.br, GoDaddy, Hostinger, etc.)
+Se preferir fazer você mesmo, sem IA:
+
+1. Crie uma conta em **vercel.com** (dá pra entrar com e-mail)
+2. Instale a ferramenta de publicação: abra o terminal na pasta do
+   projeto e rode `npx vercel login`, depois `npx vercel --prod`
+3. Siga as perguntas que aparecem no terminal (aceite as opções padrão
+   apertando Enter)
+4. Pra usar seu próprio domínio: dentro do projeto no site da Vercel, vá
+   em **Settings → Domains**, digite seu domínio (ex: `meusite.com.br`) e
+   a Vercel mostra exatamente quais dados cadastrar lá onde você comprou
+   o domínio (Registro.br, GoDaddy, Hostinger, etc.)
+
+> ⚠️ **Não tente arrastar o projeto inteiro (ou o .zip baixado) pra
+> dentro do GitHub pelo site** ("Add file → Upload files" ou a tela de
+> "arraste arquivos aqui"). Esse jeito só aceita arquivos de até 25MB
+> cada, trava fácil com muitos arquivos de uma vez e não é feito pra
+> subir um projeto inteiro. Se você quiser mesmo ter uma cópia no seu
+> GitHub (por exemplo, pra Vercel publicar sozinha toda vez que algo
+> mudar), o jeito certo é: criar um repositório **vazio** no GitHub (só
+> clicar em "New repository", sem enviar nenhum arquivo) e depois pedir
+> pra IA, usando o prompt acima, "subir esse projeto pro meu repositório
+> [link do repositório vazio]" — ela faz isso por comandos, sem passar
+> pela tela de upload.
 
 ### Opção B — Hostinger (ou qualquer hospedagem)
 
