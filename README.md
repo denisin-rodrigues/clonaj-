@@ -16,9 +16,13 @@ você estiver usando — é exatamente pra isso que o prompt lá embaixo existe.
 
 ---
 
-## 📦 1. Baixar os arquivos do site
+## 📦 1. Baixar os arquivos do site (opcional)
 
-Você **não precisa saber Git nem GitHub** pra isso.
+**Pule esse passo se for usar o prompt do passo 2** — a IA já baixa
+(clona) o projeto sozinha, é só colar o prompt em qualquer pasta vazia.
+
+Isso aqui é só pra quem prefere baixar na mão, sem IA nenhuma. Você
+**não precisa saber Git nem GitHub** pra isso:
 
 1. Acesse: **https://github.com/denisin-rodrigues/clonaj-**
 2. Clique no botão verde **"Code"**
@@ -26,14 +30,13 @@ Você **não precisa saber Git nem GitHub** pra isso.
 4. Extraia (descompacte) o arquivo ZIP baixado numa pasta no seu
    computador
 
-Pronto, você já tem todos os arquivos do site na sua máquina.
-
 ---
 
 ## 🤖 2. Rodar o site no seu computador (com ajuda de uma IA)
 
 Você vai usar uma IA de programação pra fazer o trabalho técnico por
-você. Não precisa ser nenhuma ferramenta específica — qualquer uma que
+você — incluindo baixar o projeto, então não precisa ter feito o passo 1
+antes. Não precisa ser nenhuma ferramenta específica — qualquer uma que
 tenha um "agente" que roda comandos e mexe nos arquivos sozinho serve,
 por exemplo:
 
@@ -46,33 +49,39 @@ por exemplo:
 O prompt abaixo funciona igual em qualquer uma delas. Você só precisa:
 
 1. Instalar uma dessas ferramentas (se ainda não tiver)
-2. Abrir a pasta que você extraiu no passo anterior dentro dela
+2. Abrir ela numa pasta qualquer, de preferência vazia (por exemplo, crie
+   uma pasta nova na Área de Trabalho chamada "meu-site" e abra a IA
+   dentro dela) — a IA cria os arquivos do projeto ali
 3. Colar o texto abaixo e mandar
 
 Copie e cole esse prompt inteiro:
 
 ```
-Este é o código de um site em Next.js (React + TypeScript). Preciso que
-você:
+Preciso que você me ajude a colocar no ar um site pronto. Faça o
+seguinte:
 
-1. Verifique se o Node.js (versão 20+), o Git e o GitHub CLI (comando
+1. Verifique se o Git, o Node.js (versão 20+) e o GitHub CLI (comando
    `gh`) estão instalados no meu computador. Se algum não estiver, me
    explique de forma simples como instalar (ou instale você mesmo se
    conseguir).
-2. Instale as dependências do projeto (npm install).
-3. Rode o site localmente (npm run dev) e me diga o endereço
+2. Clone (baixe) o repositório https://github.com/denisin-rodrigues/clonaj-.git
+   pra dentro da pasta atual.
+3. Entre na pasta do projeto que foi criada e instale as dependências
+   (npm install).
+4. Rode o site localmente (npm run dev) e me diga o endereço
    (normalmente http://localhost:3000) pra eu abrir no navegador e
    conferir.
-4. Depois que eu confirmar que o site abriu certo, me pergunte se eu
+5. Depois que eu confirmar que o site abriu certo, me pergunte se eu
    quero mudar algum texto, imagem, cor ou o domínio/link que aparece no
    site, e faça essas alterações comigo, uma de cada vez.
-5. Quando eu disser que está pronto, publique o site do jeito mais
+6. Quando eu disser que está pronto, publique o site do jeito mais
    automático possível, nessa ordem:
    a. Rode `gh auth login` — isso abre uma tela no navegador pra eu
       fazer login com minha conta do GitHub (ou criar uma, é grátis) e
       clicar em autorizar. Não preciso gerar nem colar nenhum token.
-   b. Depois disso, crie um repositório novo pra mim e suba o código
-      com um comando `gh repo create` (algo como
+   b. Depois disso, crie um repositório novo pra mim (num nome diferente
+      do original, tipo "meu-site") e suba o código com um comando
+      `gh repo create` (algo como
       `gh repo create meu-site --public --source=. --remote=origin --push`).
    c. Instale a Vercel CLI se precisar (`npm i -g vercel`) e rode
       `vercel login` — de novo, só abrir o link que aparece e confirmar,
@@ -92,11 +101,11 @@ cada passo devagar, uma coisa de cada vez, e espere minha confirmação
 antes de continuar pro próximo passo.
 ```
 
-A IA vai cuidar de tudo — criar seu repositório, subir o código e
-publicar com seu próprio link — e você só vai precisar clicar em "Login"
-e "Autorizar" quando o navegador abrir, do mesmo jeito que entra em
-qualquer site com sua conta do Google ou GitHub. Nenhum token pra copiar
-ou colar.
+A IA vai cuidar de tudo — baixar o projeto, criar seu repositório, subir
+o código e publicar com seu próprio link — e você só vai precisar
+clicar em "Login" e "Autorizar" quando o navegador abrir, do mesmo jeito
+que entra em qualquer site com sua conta do Google ou GitHub. Nenhum
+token pra copiar ou colar.
 
 ---
 
