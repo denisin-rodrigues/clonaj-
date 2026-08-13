@@ -305,6 +305,14 @@
   .hint {
     display: block;
   }
+
+  /* No mobile o scale(0.72)+translateY compensa o contain deixando a
+     Terra/robô grandes demais dentro da caixa (ver comentário na regra
+     base) — no desktop a caixa é bem maior e o vídeo já cabe direito com
+     contain puro, então volta ao tamanho original em vez de encolhido. */
+  .heroVideo {
+    transform: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
