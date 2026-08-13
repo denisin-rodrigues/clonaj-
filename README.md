@@ -2,7 +2,8 @@
 
 Este repositório é o código completo do site. Este guia foi escrito pra
 **quem não entende de programação** conseguir baixar, rodar e publicar o
-site sozinho, com a ajuda de uma IA (Claude Code, Codex, Cursor, etc.).
+site sozinho, com a ajuda de uma IA (Claude Code, Codex, Cursor, Google
+Antigravity, etc.).
 
 Se travar em qualquer passo, copie a mensagem de erro e cole pra IA que
 você estiver usando — é exatamente pra isso que o prompt lá embaixo existe.
@@ -31,9 +32,18 @@ Pronto, você já tem todos os arquivos do site na sua máquina.
 
 ## 🤖 2. Rodar o site no seu computador (com ajuda de uma IA)
 
-Você vai usar uma IA de programação (**Claude Code**, **Codex** ou
-**Cursor**, por exemplo) pra fazer o trabalho técnico por você. Você só
-precisa:
+Você vai usar uma IA de programação pra fazer o trabalho técnico por
+você. Não precisa ser nenhuma ferramenta específica — qualquer uma que
+tenha um "agente" que roda comandos e mexe nos arquivos sozinho serve,
+por exemplo:
+
+- **Google Antigravity** — **totalmente gratuita**, não pede cartão de
+  crédito nem assinatura. Baixe em **antigravity.google**. É a opção
+  recomendada pra quem não quer pagar nada.
+- Claude Code, Codex, Cursor — também funcionam, mas em geral pedem uma
+  assinatura paga (ChatGPT Plus, Claude Pro, etc.) pra uso sem limite.
+
+O prompt abaixo funciona igual em qualquer uma delas. Você só precisa:
 
 1. Instalar uma dessas ferramentas (se ainda não tiver)
 2. Abrir a pasta que você extraiu no passo anterior dentro dela
@@ -146,8 +156,15 @@ passo.
 
 **Preciso pagar alguma coisa?**
 Não é obrigatório. A Vercel tem plano gratuito que já é suficiente pra
-esse site. Você só paga se já tiver (ou comprar) um domínio próprio e/ou
+esse site, e o Google Antigravity (a IA que faz o trabalho técnico) também
+é gratuito. Você só paga se já tiver (ou comprar) um domínio próprio e/ou
 uma hospedagem como a Hostinger.
+
+**Não tenho Claude Code nem Codex, posso usar outra IA?**
+Sim. Qualquer IA que consiga rodar comandos no terminal e editar arquivos
+sozinha serve — o **Google Antigravity** é a opção gratuita recomendada
+(antigravity.google). O prompt do passo 2 funciona igual em qualquer uma
+delas, é só colar.
 
 **Posso usar meu próprio domínio (ex: meusite.com.br)?**
 Sim — em ambas as opções acima (Vercel ou Hostinger) tem um passo
