@@ -11,7 +11,11 @@
   position: relative;
   width: 100%;
   background: #ffffff;
-  padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
+  /* Piso de 100px (era 72px): a navbar é fixed e termina em ~78px do
+     topo (top:20px + altura própria) — com o piso antigo, em janelas
+     curtas o padding-top encolhia abaixo disso e a navbar ficava por
+     cima do título da section. */
+  padding: clamp(100px, 12vh, 140px) clamp(20px, 6vw, 40px);
   /* Só o topo arredondado — a section escura de cima (Section2, ou o preto
      do body atrás dela) preenche naturalmente o recorte da curva, sem
      precisar de gap/gradiente extra. */
@@ -71,6 +75,17 @@
     border-color 260ms ease,
     transform 260ms ease,
     background 260ms ease;
+}
+
+/* Agrupa título+corpo (ver comentário no Section4.tsx). Flex-column com o
+   mesmo gap que o .card já usava entre os itens — no card normal (coluna)
+   isso é transparente pro layout; no featured (linha, ver media query
+   abaixo) esse wrapper vira o único item que cresce, título e corpo
+   continuam empilhados por dentro dele. */
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .card:hover {
@@ -152,8 +167,17 @@
     zoom: 0.6;
   }
 
-  .cardFeatured {
+  /* grid-column precisa estar no item de grid de verdade — que é a div
+     que o ScrollReveal renderiza (ver ScrollReveal className na página),
+     não o <article> aninhado dentro dela. Em elemento que não é filho
+     direto do grid container, grid-column é simplesmente ignorado pelo
+     browser: o card featured ficava preso numa única coluna em vez de
+     ocupar a linha inteira, sobrando pouquíssima largura pro texto. */
+  .cardFeaturedSpan {
     grid-column: 1 / -1;
+  }
+
+  .cardFeatured {
     flex-direction: row;
     align-items: flex-start;
     gap: clamp(20px, 3vw, 40px);
@@ -164,6 +188,14 @@
     width: 40px;
     height: 40px;
     flex-shrink: 0;
+  }
+
+  /* Sem isso, título e corpo (antes soltos como itens diretos do
+     flex-row) brigavam por espaço com o ícone/tag e encolhiam numa
+     coluna estreita, quebrando o texto palavra por linha. */
+  .cardFeatured .cardText {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .cardFeatured .cardTitle {

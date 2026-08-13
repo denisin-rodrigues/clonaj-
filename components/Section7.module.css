@@ -16,7 +16,10 @@
   justify-content: center;
   overflow: hidden;
   isolation: isolate;
-  padding: clamp(72px, 12vh, 120px) clamp(20px, 6vw, 40px);
+  /* Piso de 100px (era 72px) — ver mesmo comentário em Section4.module.css:
+     evita a navbar fixed (termina em ~78px do topo) ficar por cima do
+     título em janelas curtas. */
+  padding: clamp(100px, 12vh, 120px) clamp(20px, 6vw, 40px);
 
   /* Glow no topo E na base — o de baixo espelha o brilho que a Section6
      agora também tem na sua própria base, fechando a transição preto↔azul

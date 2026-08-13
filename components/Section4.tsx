@@ -61,7 +61,15 @@ export default function Section4() {
 
       <div className={styles.grid}>
         {FEATURES.map((f, i) => (
-          <ScrollReveal key={f.title} direction="up" delay={i * 150}>
+          /* cardFeaturedSpan (grid-column:1/-1) precisa estar aqui, na
+             div que o ScrollReveal renderiza — ela é o item de grid de
+             verdade; o <article> lá dentro não é filho direto do grid. */
+          <ScrollReveal
+            key={f.title}
+            direction="up"
+            delay={i * 150}
+            className={f.featured ? styles.cardFeaturedSpan : undefined}
+          >
             {/* height:100% ("h-full") — o item do grid (este ScrollReveal)
                 estica pra altura da linha por padrão (grid stretch), o
                 card por dentro precisa preencher isso de volta. */}
@@ -79,8 +87,16 @@ export default function Section4() {
                 height={f.featured ? 40 : 28}
                 loading="lazy"
               />
-              <h3 className={styles.cardTitle}>{f.title}</h3>
-              <p className={styles.cardBody}>{f.body}</p>
+              {/* Agrupa título+corpo — no card featured (desktop, flex-row)
+                  título e corpo são irmãos DIRETOS do article e brigavam
+                  por espaço horizontal como itens de flex separados,
+                  encolhendo os dois numa coluna estreita. Com esse wrapper
+                  só ele vira item do flex-row (flex:1) e título/corpo
+                  empilham normalmente por dentro. */}
+              <div className={styles.cardText}>
+                <h3 className={styles.cardTitle}>{f.title}</h3>
+                <p className={styles.cardBody}>{f.body}</p>
+              </div>
               {f.tag ? <span className={styles.cardTag}>{f.tag}</span> : null}
             </article>
           </ScrollReveal>

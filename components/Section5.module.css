@@ -11,7 +11,10 @@
   background:
     radial-gradient(ellipse 65% 45% at 50% 0%, rgb(var(--brand-blue-rgb, 20 71 230) / 0.22), transparent 70%),
     #030304;
-  padding: clamp(72px, 12vh, 140px) clamp(20px, 6vw, 40px);
+  /* Piso de 100px (era 72px) — ver mesmo comentário em Section4.module.css:
+     evita a navbar fixed (termina em ~78px do topo) ficar por cima do
+     título em janelas curtas. */
+  padding: clamp(100px, 12vh, 140px) clamp(20px, 6vw, 40px);
 }
 
 /* Sem position/z-index aqui de propósito: isso criava um stacking context
